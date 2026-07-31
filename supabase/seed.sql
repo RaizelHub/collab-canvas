@@ -1,0 +1,2 @@
+-- Application data is created through authenticated flows.
+-- Do not seed fake users because Supabase Auth owns user identities.

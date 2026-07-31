@@ -1,0 +1,1508 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Evidence-based Laws of UX analysis for CollabCanvas."
+    />
+    <title>CollabCanvas — Laws of UX analysis</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --ink: #18201c;
+        --muted: #58625c;
+        --paper: #fff;
+        --canvas: #f5f7f5;
+        --line: #d5ddd7;
+        --accent: #315d48;
+        --accent-soft: #e7f0ea;
+        --warn: #8a4a08;
+        --warn-soft: #fff4df;
+        --danger: #9d2f2f;
+        --danger-soft: #fdeaea;
+        --good: #15623a;
+        --good-soft: #e8f5ec;
+        --shadow: 0 10px 28px rgba(25, 40, 31, 0.09);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font:
+          16px/1.55 Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+      a {
+        color: #155e43;
+        text-underline-offset: 2px;
+      }
+      a:focus-visible {
+        outline: 3px solid #0a7a50;
+        outline-offset: 3px;
+      }
+      .wrap {
+        width: min(1160px, calc(100% - 32px));
+        margin: auto;
+      }
+      header {
+        background: linear-gradient(135deg, #153a2e, #315d48);
+        color: #fff;
+        padding: 48px 0 42px;
+      }
+      header p {
+        color: #d6e8dd;
+        max-width: 760px;
+        margin: 12px 0 0;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.16;
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 3.45rem);
+      }
+      h2 {
+        margin: 42px 0 14px;
+        font-size: 1.55rem;
+      }
+      h3 {
+        margin: 0 0 7px;
+        font-size: 1.03rem;
+      }
+      main {
+        padding: 26px 0 60px;
+      }
+      .meta,
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .chip {
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        padding: 3px 9px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      header .chip {
+        color: #e7f4ec;
+      }
+      .panel {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: var(--shadow);
+        margin: 16px 0;
+      }
+      .callout {
+        border-left: 5px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 14px 16px;
+        border-radius: 0 9px 9px 0;
+        margin: 16px 0;
+      }
+      .callout.limit {
+        border-color: var(--warn);
+        background: var(--warn-soft);
+      }
+      .callout strong {
+        display: block;
+        margin-bottom: 3px;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 16px;
+      }
+      .score {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+        margin: 6px 0;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        background: var(--paper);
+        border: 1px solid var(--line);
+      }
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 11px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #edf2ee;
+        font-size: 0.84rem;
+        letter-spacing: 0.02em;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      .scroll {
+        overflow-x: auto;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+      }
+      .rating {
+        white-space: nowrap;
+        font-weight: 700;
+      }
+      .p1,
+      .p2,
+      .p3,
+      .good {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .p1 {
+        color: #8a1717;
+        background: var(--danger-soft);
+      }
+      .p2 {
+        color: #794306;
+        background: var(--warn-soft);
+      }
+      .p3 {
+        color: #245543;
+        background: var(--accent-soft);
+      }
+      .good {
+        color: var(--good);
+        background: var(--good-soft);
+      }
+      .finding {
+        border: 1px solid var(--line);
+        border-left: 6px solid var(--accent);
+        border-radius: 9px;
+        background: var(--paper);
+        padding: 17px;
+        margin: 13px 0;
+      }
+      .finding.high {
+        border-left-color: var(--danger);
+      }
+      .finding.medium {
+        border-left-color: var(--warn);
+      }
+      .finding p {
+        margin: 8px 0;
+      }
+      .finding ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+      }
+      .evidence {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      code {
+        background: #eef2ef;
+        border: 1px solid #dde5df;
+        border-radius: 4px;
+        padding: 1px 4px;
+        color: #26342c;
+        font:
+          0.85em ui-monospace,
+          SFMono-Regular,
+          Consolas,
+          monospace;
+      }
+      .matrix {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .matrix section {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 14px;
+        background: var(--paper);
+      }
+      .matrix h3 {
+        margin-bottom: 8px;
+      }
+      ol.flow {
+        counter-reset: flow;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      ol.flow li {
+        position: relative;
+        padding: 0 0 22px 42px;
+      }
+      ol.flow li::before {
+        counter-increment: flow;
+        content: counter(flow);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 27px;
+        height: 27px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 800;
+        font-size: 0.84rem;
+      }
+      ol.flow li:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        left: 13px;
+        top: 31px;
+        bottom: 2px;
+        border-left: 2px solid var(--line);
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .small {
+        font-size: 0.9rem;
+      }
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 25px 0 45px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      @media (max-width: 760px) {
+        .wrap {
+          width: min(100% - 24px, 1160px);
+        }
+        header {
+          padding: 34px 0;
+        }
+        .summary-grid,
+        .matrix {
+          grid-template-columns: 1fr;
+        }
+        .panel,
+        .finding {
+          padding: 16px;
+        }
+        th,
+        td {
+          min-width: 150px;
+        }
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --ink: #ebf1ed;
+          --muted: #b5c3ba;
+          --paper: #1c2420;
+          --canvas: #101713;
+          --line: #35433a;
+          --accent: #75ad90;
+          --accent-soft: #1a3827;
+          --warn-soft: #3d2c13;
+          --danger-soft: #3b1c1c;
+          --good-soft: #183526;
+          --shadow: none;
+        }
+        th {
+          background: #243128;
+        }
+        a {
+          color: #9edcb9;
+        }
+        code {
+          background: #263129;
+          border-color: #3b4b40;
+          color: #e5eee8;
+        }
+      }
+      @media print {
+        @page {
+          margin: 14mm;
+        }
+        body {
+          background: #fff;
+          color: #111;
+          font-size: 10pt;
+        }
+        header {
+          background: #fff;
+          color: #111;
+          padding: 0 0 14px;
+          border-bottom: 2px solid #111;
+        }
+        header p,
+        footer,
+        .muted {
+          color: #333;
+        }
+        header .chip {
+          color: #111;
+        }
+        .wrap {
+          width: 100%;
+        }
+        main {
+          padding: 0;
+        }
+        .panel,
+        .finding,
+        table {
+          box-shadow: none;
+          break-inside: avoid;
+        }
+        h2 {
+          break-after: avoid;
+          margin-top: 24px;
+        }
+        a {
+          color: #111;
+        }
+        .scroll {
+          overflow: visible;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap">
+        <p class="small">Independent source-based product review</p>
+        <h1>CollabCanvas<br />Laws of UX analysis</h1>
+        <p>
+          Dashboard, authentication, whiteboard, collaboration, sharing,
+          recovery, responsive behavior, and product copy in the implemented
+          React application.
+        </p>
+        <div class="meta">
+          <span class="chip">31 July 2026</span
+          ><span class="chip">Source verified</span
+          ><span class="chip">No external assets</span
+          ><span class="chip">Read-only audit</span>
+        </div>
+      </div>
+    </header>
+    <main class="wrap">
+      <section aria-labelledby="executive-summary">
+        <h2 id="executive-summary">Executive summary</h2>
+        <div class="summary-grid">
+          <div class="panel">
+            <h3>Overall assessment</h3>
+            <p class="score">3.3 / 5</p>
+            <p>
+              CollabCanvas has a calm, consistent visual system and a good
+              foundation of direct manipulation: familiar forms, explicit
+              labels, stable board cards, loading/error states, recovery
+              messaging, and confirmation for destructive board deletion. The
+              cloud whiteboard also exposes useful collaboration, export,
+              snapshot, and presence feedback.
+            </p>
+            <p>
+              The largest experience risks are not visual polish. They are
+              mismatches between product promises and reachable behavior: the
+              router blocks the advertised local mode without a Supabase
+              configuration; links marketed as “Public” or “Link” still require
+              sign-in; important whiteboard status and collaboration cues
+              disappear at compact widths; and two custom dialogs lack complete
+              modal keyboard containment.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>First changes to make</h3>
+            <ol>
+              <li>
+                Decide whether local mode and public/link sharing are real
+                supported modes, then align routing and copy.
+              </li>
+              <li>
+                Use one accessible modal primitive with focus trap, Escape,
+                focus restoration, and an explicit close control.
+              </li>
+              <li>
+                Keep a compact, always-visible save/connection and collaborator
+                indicator on small screens.
+              </li>
+              <li>
+                Add pending/success/failure feedback around destructive and
+                clipboard actions.
+              </li>
+            </ol>
+          </div>
+        </div>
+        <div class="callout limit">
+          <strong>Evidence boundary</strong>
+          This audit inspected the actual TypeScript/TSX/CSS/routes and existing
+          tests. The in-app browser connection reported “No browser is
+          available,” so no live UI, authenticated session, network timing,
+          screen-reader, or real-device observation is claimed. Statements
+          labelled <em>source-verified</em> are grounded in the linked local
+          code; runtime assertions are deliberately deferred to the validation
+          plan.
+        </div>
+      </section>
+
+      <section aria-labelledby="rubric">
+        <h2 id="rubric">Scored rubric</h2>
+        <p class="muted small">
+          5 = consistently supports the principle in the reviewed scope; 3 =
+          foundation present but important gaps; 1 = actively works against it.
+          Scores are qualitative—not measured usability-test results.
+        </p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Principle</th>
+                <th>Score</th>
+                <th>What is working</th>
+                <th>Main gap</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Jakob’s Law</td>
+                <td class="rating">3.1 / 5</td>
+                <td>
+                  Conventional auth forms, dashboard, back links, and profile
+                  menu.
+                </td>
+                <td>
+                  “Public”/“Link” sharing semantics and unreachable local mode
+                  conflict with learned expectations.
+                </td>
+              </tr>
+              <tr>
+                <td>Fitts’s Law</td>
+                <td class="rating">3.4 / 5</td>
+                <td>
+                  Prominent Create button; controls mostly 32–40px and grouped
+                  by task.
+                </td>
+                <td>
+                  Several 32px icon targets and dense board-header menus are
+                  below a comfortable 44px touch target.
+                </td>
+              </tr>
+              <tr>
+                <td>Hick’s Law</td>
+                <td class="rating">3.4 / 5</td>
+                <td>
+                  Dashboard begins with search and one primary CTA; export uses
+                  disclosure.
+                </td>
+                <td>
+                  Sharing changes exposure immediately and presents four access
+                  concepts without consequence previews.
+                </td>
+              </tr>
+              <tr>
+                <td>Miller’s Law</td>
+                <td class="rating">3.5 / 5</td>
+                <td>
+                  Board cards chunk title, time, role, and actions; auth uses
+                  short forms.
+                </td>
+                <td>
+                  Snapshots, export, clear, sharing and collaboration split
+                  across compact menus without orientation help.
+                </td>
+              </tr>
+              <tr>
+                <td>Tesler’s Law</td>
+                <td class="rating">3.2 / 5</td>
+                <td>
+                  Repositories separate local and cloud complexity; roles
+                  constrain owner controls.
+                </td>
+                <td>
+                  Mode/auth/share complexity is shifted to users through copy
+                  and routing mismatches.
+                </td>
+              </tr>
+              <tr>
+                <td>Doherty Threshold</td>
+                <td class="rating">3.3 / 5</td>
+                <td>
+                  Loading labels, button busy labels, and optimistic navigation
+                  reduce perceived delay.
+                </td>
+                <td>
+                  No timing budgets/instrumentation observed; several actions
+                  close before outcome feedback.
+                </td>
+              </tr>
+              <tr>
+                <td>Feedback &amp; system status</td>
+                <td class="rating">3.2 / 5</td>
+                <td>
+                  Loading, errors, save/connection text, upload progress, and
+                  presence announcements exist.
+                </td>
+                <td>
+                  Key whiteboard status is hidden on narrow screens; clipboard
+                  and snapshot-success feedback is incomplete.
+                </td>
+              </tr>
+              <tr>
+                <td>Error prevention &amp; recovery</td>
+                <td class="rating">3.2 / 5</td>
+                <td>
+                  Deletion confirmation, Escape handling, input limits,
+                  corrupted-storage recovery, retry affordances.
+                </td>
+                <td>
+                  No pre-commit warning for exposure changes; destructive cloud
+                  delete has no in-progress state or undo.
+                </td>
+              </tr>
+              <tr>
+                <td>Accessibility-related usability</td>
+                <td class="rating">2.9 / 5</td>
+                <td>
+                  Labels, native controls, alerts, live regions, focus style,
+                  reduced-motion rule, and one focus-trapped dialog.
+                </td>
+                <td>
+                  Share/clear-restore dialogs are incomplete modals; summary
+                  focus is not covered globally; mobile hides status.
+                </td>
+              </tr>
+              <tr>
+                <td>Gestalt (proximity, similarity, common region)</td>
+                <td class="rating">3.8 / 5</td>
+                <td>
+                  Consistent panels, borders, hierarchy, and separated
+                  board-card action regions.
+                </td>
+                <td>
+                  Dense disclosure menus can blur task grouping; modal
+                  containment is behaviorally inconsistent.
+                </td>
+              </tr>
+              <tr>
+                <td>Serial-position &amp; peak-end effects</td>
+                <td class="rating">3.2 / 5</td>
+                <td>
+                  Important actions sit at top/right or card end; confirmations
+                  articulate consequences.
+                </td>
+                <td>
+                  Successful completion lacks a consistent end-state
+                  (copy/export/snapshot/delete), weakening confidence.
+                </td>
+              </tr>
+              <tr>
+                <td>Goal-gradient effect</td>
+                <td class="rating">2.8 / 5</td>
+                <td>
+                  Create immediately opens a board; invitation reports
+                  acceptance progress.
+                </td>
+                <td>
+                  Blank boards provide no source-visible first-success path,
+                  progress cue, or next-step scaffold.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="findings">
+        <h2 id="findings">Evidence-backed findings</h2>
+        <article class="finding high">
+          <div class="chips">
+            <span class="p1">P1 — high impact</span
+            ><span class="p2">Medium effort</span
+            ><span class="chip">Jakob · Tesler · error prevention</span>
+          </div>
+          <h3>Advertised local mode is blocked by the route guard</h3>
+          <p>
+            <strong>Source-verified.</strong> The dashboard and local whiteboard
+            implement a “Local foundation mode” / “Local mode” experience, but
+            all dashboard and board routes sit inside
+            <code>ProtectedRoute</code>. When Supabase is absent, that guard
+            renders only a setup-required screen. A person following the
+            local-mode copy cannot reach the local dashboard or canvas through
+            the real router.
+          </p>
+          <p>
+            <strong>Why it matters:</strong> This turns a low-complexity
+            fallback into an infrastructure prerequisite, eroding trust at the
+            first-use peak. Either permit intended local routes without
+            authentication, or remove/replace the local-mode promise and make
+            the setup requirement clear before users invest effort.
+          </p>
+          <p class="evidence">
+            Evidence:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/routes/router.tsx#L35"
+              >router.tsx:35–50</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/auth/protected-route.tsx#L9"
+              >protected-route.tsx:9–23</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/dashboard-page.tsx#L145"
+              >dashboard-page.tsx:145–155</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/components/local-mode-badge.tsx#L3"
+              >local-mode-badge.tsx:3–9</a
+            >.
+          </p>
+        </article>
+        <article class="finding high">
+          <div class="chips">
+            <span class="p1">P1 — high impact</span
+            ><span class="p2">Medium effort</span
+            ><span class="chip">Jakob · Hick · error prevention</span>
+          </div>
+          <h3>
+            Sharing vocabulary implies access that the implemented route does
+            not grant
+          </h3>
+          <p>
+            <strong>Source-verified.</strong> The sharing selector offers “Link
+            — view only,” “Link — can edit,” and “Public — view only.” Yet the
+            share route is protected, unauthenticated visitors are redirected to
+            sign-in, and the share page requests a session token before opening.
+            “Public” therefore does not behave as most people expect unless its
+            meaning is explicitly “all signed-in users permitted by server
+            policy.”
+          </p>
+          <p>
+            <strong>Recommendation:</strong> Make the labels match the enforced
+            model (for example, “Anyone with an account and this link”), or
+            intentionally support anonymous access and test its security model.
+            Add one-sentence consequence text beside each access choice and
+            require confirmation when broadening exposure or granting edit
+            access.
+          </p>
+          <p class="evidence">
+            Evidence:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L878"
+              >cloud-whiteboard-page.tsx:878–882</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/routes/router.tsx#L47"
+              >router.tsx:47–50</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/auth/protected-route.tsx#L36"
+              >protected-route.tsx:36–44</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/share-link-page.tsx#L30"
+              >share-link-page.tsx:30–45</a
+            >.
+          </p>
+        </article>
+        <article class="finding high">
+          <div class="chips">
+            <span class="p1">P1 — high impact</span
+            ><span class="p2">Medium effort</span
+            ><span class="chip">Accessibility · common region · control</span>
+          </div>
+          <h3>
+            Custom Share and clear/restore dialogs do not provide a complete
+            modal interaction
+          </h3>
+          <p>
+            <strong>Source-verified.</strong> Both dialogs use
+            <code>role="dialog"</code> and <code>aria-modal="true"</code>. The
+            confirmation dialog initially focuses Cancel and supports Escape,
+            but neither it nor Share traps Tab focus or restores the invoking
+            focus when closed; Share also has no Escape handler or explicit
+            close button. By contrast, Delete board does trap Tab and restore
+            focus, proving a usable implementation pattern already exists in the
+            codebase.
+          </p>
+          <p>
+            <strong>Recommendation:</strong> Standardize on a single dialog
+            component or native <code>&lt;dialog&gt;</code> pattern: labelled
+            dialog, first meaningful focus, Tab/Shift+Tab containment, Escape
+            unless unsafe, visible close, background inertness, and focus
+            return. Test keyboard-only flow with each dialog.
+          </p>
+          <p class="evidence">
+            Evidence:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L606"
+              >cloud-whiteboard-page.tsx:606–661</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L856"
+              >cloud-whiteboard-page.tsx:856–1044</a
+            >; comparison:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/boards/delete-board-dialog.tsx#L21"
+              >delete-board-dialog.tsx:21–60</a
+            >.
+          </p>
+        </article>
+        <article class="finding medium">
+          <div class="chips">
+            <span class="p2">P2 — medium impact</span
+            ><span class="p2">Low–medium effort</span
+            ><span class="chip">Feedback · Doherty · responsive UX</span>
+          </div>
+          <h3>
+            Compact whiteboard removes all source-visible collaboration and save
+            context
+          </h3>
+          <p>
+            <strong>Source-verified.</strong> At smaller breakpoints, the cloud
+            header hides connection/save status below <code>md</code>, the
+            collaborator menu below <code>sm</code>, and local-mode identity
+            below <code>lg</code>. The remaining mobile header leaves users with
+            actions but less evidence that work is connected, saved, local, or
+            shared. The app does preserve the board title and Back action, which
+            is a useful foundation.
+          </p>
+          <p>
+            <strong>Recommendation:</strong> Use compact icons/badges with
+            accessible names rather than removing the status wholesale: e.g., a
+            colored connection dot with “Offline—changes may not sync,” an
+            avatar count, and a one-time local-mode badge. Verify at 320, 375,
+            390, 768, and landscape.
+          </p>
+          <p class="evidence">
+            Evidence:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L338"
+              >cloud-whiteboard-page.tsx:338–398</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/collaboration/collaborator-menu.tsx#L15"
+              >collaborator-menu.tsx:15–30</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/whiteboard-page.tsx#L158"
+              >whiteboard-page.tsx:158–172</a
+            >; responsive dashboard grid:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-dashboard-page.tsx#L277"
+              >cloud-dashboard-page.tsx:277–294</a
+            >.
+          </p>
+        </article>
+        <article class="finding medium">
+          <div class="chips">
+            <span class="p2">P2 — medium impact</span
+            ><span class="p2">Low effort</span
+            ><span class="chip">Error prevention · peak-end · feedback</span>
+          </div>
+          <h3>
+            Cloud deletion closes before its outcome is visible and has no
+            progress/undo state
+          </h3>
+          <p>
+            <strong>Source-verified.</strong> Confirming deletion immediately
+            clears the dialog state, then performs the asynchronous cleanup.
+            Failure later appears in a dashboard alert with Retry, but the
+            affordance has already vanished and the button is not disabled
+            during the request. The permanent-delete warning is good, but the
+            action’s ending is less reassuring than it could be.
+          </p>
+          <p>
+            <strong>Recommendation:</strong> Keep the dialog open while
+            deleting, replace the action with “Deleting…”, prevent duplicate
+            submission, then close on success and announce “Board deleted.”
+            Consider a short undo only if the backend can support
+            recoverability; otherwise keep the permanent consequence
+            unmistakable.
+          </p>
+          <p class="evidence">
+            Evidence:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-dashboard-page.tsx#L100"
+              >cloud-dashboard-page.tsx:100–129</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/boards/delete-board-dialog.tsx#L73"
+              >delete-board-dialog.tsx:73–96</a
+            >.
+          </p>
+        </article>
+        <article class="finding medium">
+          <div class="chips">
+            <span class="p2">P2 — medium impact</span
+            ><span class="p2">Low effort</span
+            ><span class="chip">Jakob · navigation · serial position</span>
+          </div>
+          <h3>
+            Recent/shared routes exist but are not represented in the
+            application shell
+          </h3>
+          <p>
+            <strong>Source-verified.</strong> The router declares
+            <code>/boards/recent</code> and <code>/boards/shared</code>, and the
+            cloud dashboard filters based on those paths. The shell only offers
+            “Dashboard”; there is no source-visible link, tab, or navigation
+            control for Recent versus Shared. Users can filter by role, but the
+            route-level organization cannot be discovered through normal
+            navigation.
+          </p>
+          <p>
+            <strong>Recommendation:</strong> Choose one mental model: add
+            visible tabs/segmented navigation for All, Recent, Shared; or remove
+            the hidden routes and state the card filters in the dashboard.
+            Retain the current search, role, and sort controls as secondary
+            refinements.
+          </p>
+          <p class="evidence">
+            Evidence:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/routes/router.tsx#L40"
+              >router.tsx:40–44</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/layouts/app-shell.tsx#L25"
+              >app-shell.tsx:25–31</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-dashboard-page.tsx#L167"
+              >cloud-dashboard-page.tsx:167–185</a
+            >.
+          </p>
+        </article>
+        <article class="finding medium">
+          <div class="chips">
+            <span class="p2">P2 — medium impact</span
+            ><span class="p2">Low effort</span
+            ><span class="chip">Feedback · accessibility · recovery</span>
+          </div>
+          <h3>Several outcomes are silent or visually inaccessible</h3>
+          <p>
+            <strong>Source-verified.</strong> Copying share/invitation links
+            directly calls the clipboard API without success/failure feedback.
+            Local whiteboard title errors are placed in a screen-reader-only
+            alert, so a sighted user receives no visible explanation after an
+            invalid blur/save. Reset-password submission also exposes no
+            in-progress state, unlike sign-in and registration.
+          </p>
+          <p>
+            <strong>Recommendation:</strong> Announce “Link copied” (and copy
+            failure), show title errors adjacent to the field with
+            <code>aria-describedby</code>, and add a disabled busy state to
+            password-reset submission. These small endings improve perceived
+            reliability disproportionately.
+          </p>
+          <p class="evidence">
+            Evidence:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L895"
+              >cloud-whiteboard-page.tsx:895–902</a
+            >
+            and
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L975"
+              >:975–982</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/whiteboard-page.tsx#L151"
+              >whiteboard-page.tsx:151–155</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/password-pages.tsx#L11"
+              >password-pages.tsx:11–51</a
+            >.
+          </p>
+        </article>
+        <article class="finding medium">
+          <div class="chips">
+            <span class="p2">P2 — medium impact</span
+            ><span class="p2">Low effort</span
+            ><span class="chip">Fitts · accessibility</span>
+          </div>
+          <h3>
+            Interactive target and focus treatment is inconsistent at the
+            compact end
+          </h3>
+          <p>
+            <strong>Source-verified.</strong> Primary form controls are 40px
+            high and Create is 36px, while several board/header actions are
+            32px. The global explicit keyboard focus selector covers buttons,
+            inputs, and links, but not <code>summary</code> or
+            <code>select</code>; some summaries add local focus styling and
+            others do not. This is not a claim that they are unusable—the
+            browser may supply an outline—but it is not guaranteed by the
+            product stylesheet.
+          </p>
+          <p>
+            <strong>Recommendation:</strong> Set a 40–44px minimum target for
+            touch-primary icon actions and a shared
+            <code>:focus-visible</code> rule for button, input, select, summary,
+            and links. Preserve compact desktop density only where pointer use
+            is known.
+          </p>
+          <p class="evidence">
+            Evidence:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/index.css#L61"
+              >index.css:61–71</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/boards/board-card.tsx#L114"
+              >board-card.tsx:114–150</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/layouts/app-shell.tsx#L46"
+              >app-shell.tsx:46–52</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/collaboration/collaborator-menu.tsx#L15"
+              >collaborator-menu.tsx:15–16</a
+            >.
+          </p>
+        </article>
+        <article class="finding">
+          <div class="chips">
+            <span class="p3">P3 — opportunity</span
+            ><span class="p2">Medium effort</span
+            ><span class="chip"
+              >Goal gradient · Miller · aesthetic-usability</span
+            >
+          </div>
+          <h3>New-board momentum can be made more intentional</h3>
+          <p>
+            <strong
+              >Source-verified to the navigation behavior; onboarding absence is
+              limited to application-owned UI.</strong
+            >
+            Creating a board takes the user straight to an “Untitled board”
+            canvas, which is fast and respects direct manipulation. No
+            application-level starter prompt, first-success check, or visible
+            next-step sequence is rendered before handing control to the
+            third-party canvas UI. Whether tldraw itself supplies onboarding
+            must be verified at runtime.
+          </p>
+          <p>
+            <strong>Recommendation:</strong> On a fresh board, offer a
+            dismissible, one-task-at-a-time starter strip: “Name board → add a
+            note → share when ready.” Do not cover the canvas toolbar; remove
+            the cue after the first object or store dismissal.
+          </p>
+          <p class="evidence">
+            Evidence:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-dashboard-page.tsx#L61"
+              >cloud-dashboard-page.tsx:61–75</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/boards/supabase-board-repository.ts#L188"
+              >supabase-board-repository.ts:188–199</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L517"
+              >cloud-whiteboard-page.tsx:517–572</a
+            >.
+          </p>
+        </article>
+      </section>
+
+      <section aria-labelledby="strengths">
+        <h2 id="strengths">Strengths to preserve</h2>
+        <div class="matrix">
+          <section>
+            <span class="good">Clear system status</span>
+            <h3>Useful waiting and failure states</h3>
+            <p>
+              Boards, shared boards, app shell, canvas, uploads, invitations and
+              exports expose concrete loading/error language; dashboard errors
+              include Retry.
+            </p>
+            <p class="evidence">
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-dashboard-page.tsx#L204"
+                >cloud-dashboard-page.tsx:204–217, 269–275</a
+              >;
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/features/whiteboard/whiteboard-canvas.tsx#L55"
+                >whiteboard-canvas.tsx:55–73</a
+              >.
+            </p>
+          </section>
+          <section>
+            <span class="good">Defensive interactions</span>
+            <h3>Destructive action gets a clear warning</h3>
+            <p>
+              Delete names the target, explains permanence, puts Cancel first,
+              defaults focus to Cancel, supports Escape, traps Tab, and restores
+              prior focus.
+            </p>
+            <p class="evidence">
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/features/boards/delete-board-dialog.tsx#L21"
+                >delete-board-dialog.tsx:21–99</a
+              >.
+            </p>
+          </section>
+          <section>
+            <span class="good">Gestalt consistency</span>
+            <h3>Calm, coherent visual language</h3>
+            <p>
+              Tokenized light/dark colors, consistent panels and borders, and
+              repeated board-card geometry make the hierarchy easy to scan.
+              Reduced motion is also respected.
+            </p>
+            <p class="evidence">
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/index.css#L3"
+                >index.css:3–49, 73–80</a
+              >;
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/features/boards/board-card.tsx#L73"
+                >board-card.tsx:73–154</a
+              >.
+            </p>
+          </section>
+          <section>
+            <span class="good">Standards-aligned forms</span>
+            <h3>Recognition over recall</h3>
+            <p>
+              Auth fields have labels, native types, autocomplete attributes,
+              constraints, submit wording, and visible busy state for
+              sign-in/registration.
+            </p>
+            <p class="evidence">
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/login-page.tsx#L38"
+                >login-page.tsx:38–82</a
+              >;
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/register-page.tsx#L45"
+                >register-page.tsx:45–99</a
+              >.
+            </p>
+          </section>
+          <section>
+            <span class="good">Permission visibility</span>
+            <h3>Owner controls are conditionally exposed</h3>
+            <p>
+              Share and board-management controls are withheld from users
+              without management rights; viewer role is displayed in the
+              shared-board header.
+            </p>
+            <p class="evidence">
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L389"
+                >cloud-whiteboard-page.tsx:389–398</a
+              >;
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/share-link-page.tsx#L92"
+                >share-link-page.tsx:92–105</a
+              >.
+            </p>
+          </section>
+          <section>
+            <span class="good">Recovery paths</span>
+            <h3>Failures have practical exits</h3>
+            <p>
+              Corrupt local metadata can be reset; expired sessions explain the
+              next step; missing boards and 404 routes provide a path back.
+            </p>
+            <p class="evidence">
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/dashboard-page.tsx#L176"
+                >dashboard-page.tsx:176–195</a
+              >;
+              <a
+                href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/not-found-page.tsx#L3"
+                >not-found-page.tsx:3–17</a
+              >.
+            </p>
+          </section>
+        </div>
+      </section>
+
+      <section aria-labelledby="flows">
+        <h2 id="flows">Flow-by-flow analysis</h2>
+        <div class="panel">
+          <h3>1. Sign in, register, and reset password</h3>
+          <ol class="flow">
+            <li>
+              <strong>Recognition:</strong> Standard labels, email/password
+              types, autocomplete and inline navigation align with Jakob’s Law.
+            </li>
+            <li>
+              <strong>Feedback:</strong> Sign-in/registration disable and change
+              labels while submitting; alerts show provider errors.
+            </li>
+            <li>
+              <strong>Gap:</strong> registration has no explanatory
+              configured-state message even though its CTA is disabled, while
+              login does; reset password has no busy guard.
+            </li>
+          </ol>
+          <p class="evidence">
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/login-page.tsx#L33"
+              >login-page.tsx:33–72</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/register-page.tsx#L86"
+              >register-page.tsx:86–92</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/password-pages.tsx#L11"
+              >password-pages.tsx:11–51</a
+            >.
+          </p>
+        </div>
+        <div class="panel">
+          <h3>2. Dashboard, board discovery, and board lifecycle</h3>
+          <ol class="flow">
+            <li>
+              <strong>Scan:</strong> one CTA, search, and responsive card grid
+              support visual chunking and progressive disclosure.
+            </li>
+            <li>
+              <strong>Manage:</strong> inline rename accepts Escape and reports
+              errors; deletion uses the strongest modal behavior in the app.
+            </li>
+            <li>
+              <strong>Gap:</strong> Cloud Recent/Shared route distinction is not
+              navigable; cloud deletion ends the confirmation before request
+              completion.
+            </li>
+          </ol>
+          <p class="evidence">
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-dashboard-page.tsx#L187"
+              >cloud-dashboard-page.tsx:187–321</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/boards/board-card.tsx#L34"
+              >board-card.tsx:34–154</a
+            >.
+          </p>
+        </div>
+        <div class="panel">
+          <h3>3. Create and work on a whiteboard</h3>
+          <ol class="flow">
+            <li>
+              <strong>Momentum:</strong> Create produces an Untitled board and
+              navigates directly to its canvas—good goal-gradient support.
+            </li>
+            <li>
+              <strong>Status:</strong> Cloud mode computes
+              Connecting/Offline/Saved state and announces changing collaborator
+              presence; local mode announces saved changes.
+            </li>
+            <li>
+              <strong>Gap:</strong> source-visible state is intentionally hidden
+              at narrow breakpoints. Local invalid-title feedback is not
+              visually presented.
+            </li>
+          </ol>
+          <p class="evidence">
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L165"
+              >cloud-whiteboard-page.tsx:165–190, 367–376, 500–571</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/whiteboard-page.tsx#L80"
+              >whiteboard-page.tsx:80–119, 151–169</a
+            >.
+          </p>
+        </div>
+        <div class="panel">
+          <h3>4. Share, invite, and manage access</h3>
+          <ol class="flow">
+            <li>
+              <strong>Choices:</strong> Access level, invitee email, and role
+              are explicit, and the member list permits role changes/removal.
+            </li>
+            <li>
+              <strong>Feedback:</strong> status copy announces saving,
+              invitation creation, expiration and member updates.
+            </li>
+            <li>
+              <strong>Gap:</strong> immediate exposure changes and semantics of
+              “Public/Link” require clarification; copied links provide no
+              confirmation; the dialog keyboard model is incomplete.
+            </li>
+          </ol>
+          <p class="evidence">
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/pages/cloud-whiteboard-page.tsx#L718"
+              >cloud-whiteboard-page.tsx:718–818, 856–1044</a
+            >.
+          </p>
+        </div>
+        <div class="panel">
+          <h3>5. Failure, recovery, and exit</h3>
+          <ol class="flow">
+            <li>
+              <strong>Recovery:</strong> protected routing restores a session or
+              preserves the intended redirect; unavailable boards return users
+              to the dashboard.
+            </li>
+            <li>
+              <strong>Resilience:</strong> canvas and app error boundaries
+              provide human-readable refresh instructions; local metadata
+              corruption has a reset path.
+            </li>
+            <li>
+              <strong>Gap:</strong> recovering from failed destructive or
+              sharing operations should leave the initiating context intact and
+              explain the next safe action.
+            </li>
+          </ol>
+          <p class="evidence">
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/auth/protected-route.tsx#L25"
+              >protected-route.tsx:25–47</a
+            >;
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/components/error-boundary.tsx#L25"
+              >error-boundary.tsx:25–44</a
+            >.
+          </p>
+        </div>
+      </section>
+
+      <section aria-labelledby="matrix">
+        <h2 id="matrix">Priority / effort / impact matrix</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Change</th>
+                <th>Priority</th>
+                <th>Impact</th>
+                <th>Effort</th>
+                <th>Rationale</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Resolve local-mode routing promise</td>
+                <td><span class="p1">P1</span></td>
+                <td>High</td>
+                <td>Medium</td>
+                <td>
+                  Controls whether a newly configured-free user can use the
+                  advertised foundation experience at all.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Align “Public/Link” wording and access enforcement; confirm
+                  broader exposure
+                </td>
+                <td><span class="p1">P1</span></td>
+                <td>High</td>
+                <td>Medium–high</td>
+                <td>
+                  Prevents privacy/access expectation failures at a
+                  trust-sensitive moment.
+                </td>
+              </tr>
+              <tr>
+                <td>Adopt one fully accessible dialog primitive</td>
+                <td><span class="p1">P1</span></td>
+                <td>High</td>
+                <td>Medium</td>
+                <td>
+                  Fix applies to share, clear/restore and future custom dialogs.
+                </td>
+              </tr>
+              <tr>
+                <td>Always show compact sync/presence state on mobile</td>
+                <td><span class="p2">P2</span></td>
+                <td>High</td>
+                <td>Low–medium</td>
+                <td>
+                  Protects confidence during collaborative editing on
+                  constrained screens.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Keep delete open while pending; add outcome announcement
+                </td>
+                <td><span class="p2">P2</span></td>
+                <td>Medium</td>
+                <td>Low</td>
+                <td>
+                  Improves recovery and the memorable endpoint of a destructive
+                  operation.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Add visible copy, title-error, and reset-request feedback
+                </td>
+                <td><span class="p2">P2</span></td>
+                <td>Medium</td>
+                <td>Low</td>
+                <td>Small changes reduce repeated actions and uncertainty.</td>
+              </tr>
+              <tr>
+                <td>Expose Recent/Shared navigation</td>
+                <td><span class="p2">P2</span></td>
+                <td>Medium</td>
+                <td>Low</td>
+                <td>
+                  Makes existing information architecture discoverable without
+                  adding a new backend feature.
+                </td>
+              </tr>
+              <tr>
+                <td>Normalize 40–44px targets and focus selector coverage</td>
+                <td><span class="p2">P2</span></td>
+                <td>Medium</td>
+                <td>Low</td>
+                <td>
+                  Benefits touch, keyboard and low-precision use across screens.
+                </td>
+              </tr>
+              <tr>
+                <td>Add a dismissible fresh-board starter strip</td>
+                <td><span class="p3">P3</span></td>
+                <td>Medium</td>
+                <td>Medium</td>
+                <td>Improves activation without crowding expert workflows.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="not-applicable">
+        <h2 id="not-applicable">
+          Principles not independently applicable or not verifiable from source
+          alone
+        </h2>
+        <div class="panel">
+          <ul>
+            <li>
+              <strong>Von Restorff effect:</strong> no important
+              isolated/exceptional item is a repeated decision point in the
+              reviewed application-owned UI; applying it would be speculative.
+            </li>
+            <li>
+              <strong>Parkinson’s Law / timeboxing:</strong> the product has no
+              source-visible deadlines, estimates, task timers, or paced
+              multi-step workflow.
+            </li>
+            <li>
+              <strong>Law of Uniform Connectedness:</strong> supported
+              incidentally by panels/borders, but it does not create a distinct
+              finding beyond the Gestalt review.
+            </li>
+            <li>
+              <strong
+                >Canvas-tool palette, drawing latency, and viewer
+                editability:</strong
+              >
+              tldraw is an embedded dependency. The app passes a store to
+              <code>&lt;Tldraw&gt;</code>, but source review alone cannot
+              establish its rendered toolbar, gesture behavior, frame rate, or
+              whether server authorization makes viewer controls read-only.
+              Verify these live before making a claim.
+            </li>
+            <li>
+              <strong>Doherty’s &lt;400 ms threshold:</strong> no performance
+              measurements, RUM telemetry, or a connected runtime was available.
+              Existing loading feedback is assessed; actual response timing is
+              not.
+            </li>
+          </ul>
+          <p class="evidence">
+            Evidence boundary for embedded canvas:
+            <a
+              href="file:///D:/MySystems/collab-canvas/apps/web/src/features/whiteboard/whiteboard-canvas.tsx#L274"
+              >whiteboard-canvas.tsx:274–293</a
+            >.
+          </p>
+        </div>
+      </section>
+
+      <section aria-labelledby="validation">
+        <h2 id="validation">Validation plan</h2>
+        <div class="panel">
+          <ol>
+            <li>
+              <strong>Route/copy decision test:</strong> In a clean browser with
+              no Supabase environment, attempt <code>/dashboard</code> and
+              <code>/board/:id</code>. Confirm the chosen product policy (local
+              access or setup gate) matches every label. With a logged-out
+              session, open each share mode and record expected/actual access.
+            </li>
+            <li>
+              <strong>Keyboard modal test:</strong> For Delete, Share, Clear,
+              and Restore: open using keyboard; ensure focus enters the dialog,
+              Tab/Shift+Tab never escapes, Escape behavior is intentional, close
+              returns focus to the invoking control, and screen-reader
+              title/description are announced.
+            </li>
+            <li>
+              <strong>Responsive task test:</strong> At 320×568, 375×667,
+              390×844, 768px, and desktop, have 5 participants complete: create
+              a board, determine whether it is saved/online, find collaborators,
+              share view-only, and return to the dashboard. Track failures,
+              hesitation, and horizontal overflow.
+            </li>
+            <li>
+              <strong>Destructive-state test:</strong> Simulate slow and failed
+              cloud deletion, visibility update, clipboard denial, reset email
+              request, asset upload and snapshot restore. Confirm button busy
+              state, outcome feedback, retry location, and retained context.
+            </li>
+            <li>
+              <strong>Accessibility test:</strong> Run automated checks (axe or
+              equivalent) and manual keyboard/VoiceOver/NVDA testing.
+              Specifically inspect contrast in both themes,
+              <code>summary</code>/<code>select</code> focus, live-region
+              announcement frequency, role labels, zoom to 200%, and
+              reduced-motion behavior.
+            </li>
+            <li>
+              <strong>Outcome metrics:</strong> Compare before/after task
+              success, time-to-first-board, share-permission comprehension,
+              accidental permission-change rate, repeat-click rate, and mobile
+              confidence rating. Set a response-time budget and collect real
+              interaction timing before claiming Doherty-threshold compliance.
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <div class="wrap">
+        Prepared as an independent implementation review for CollabCanvas. Local
+        references point to the audited workspace at
+        <code>D:\MySystems\collab-canvas</code>.
+      </div>
+    </footer>
+  </body>
+</html>
