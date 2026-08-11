@@ -4,6 +4,10 @@ CollabCanvas is a React and tldraw collaborative whiteboard with Supabase
 identity/metadata, a Cloudflare Durable Object per board, SQLite-backed
 document sync, and private R2 assets.
 
+**Project status: Working Prototype.** The local stack is fully implemented and
+validated; the Cloudflare/Supabase production deployment is not currently
+presented as live, so there is no public demo link.
+
 ## Implemented
 
 - Email/password registration, login, logout, recovery, session restoration,
@@ -182,3 +186,9 @@ RLS is enabled on every application table. Review
 
 See [docs/troubleshooting.md](docs/troubleshooting.md) for common failures and
 [docs/testing.md](docs/testing.md) for the verification matrix.
+
+## Case Study
+
+Full technical case study and screenshots are available in the portfolio:
+
+https://janmark-suelto.vercel.app/projects/collabcanvas
