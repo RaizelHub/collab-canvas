@@ -185,9 +185,9 @@ export function createSupabaseBoardRepository(
       );
     },
 
-    async create(): Promise<CloudBoard> {
+    async create(title = "Untitled board"): Promise<CloudBoard> {
       const { data, error } = await client
-        .rpc("create_board", { board_title: "Untitled board" })
+        .rpc("create_board", { board_title: title.trim() || "Untitled board" })
         .select(
           "id,title,created_at,updated_at,last_activity_at,owner_id,visibility",
         )

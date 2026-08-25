@@ -5,8 +5,8 @@ identity/metadata, a Cloudflare Durable Object per board, SQLite-backed
 document sync, and private R2 assets.
 
 **Project status: Working Prototype.** The local stack is fully implemented and
-validated; the Cloudflare/Supabase production deployment is not currently
-presented as live, so there is no public demo link.
+validated. The public portfolio room has a device-local fallback; genuine
+cross-visitor presence requires the Worker deployment described below.
 
 ## Implemented
 
@@ -25,6 +25,13 @@ presented as live, so there is no public demo link.
   duplication.
 - Strict TypeScript, ESLint, Prettier, Vitest, Playwright scenarios, Worker
   dry-run builds, migrations/RLS, and GitHub Actions.
+- Public portfolio homepage with a lightweight live contribution preview.
+- Walkable shared portfolio room with keyboard and tap-to-walk movement,
+  collision, proximity interactions, accessible direct navigation, and a
+  reduced-motion mode.
+- Signed returning guest identities, existing Supabase profile reuse, ephemeral
+  spatial presence, persistent public text/notes/drawings, ownership controls,
+  moderation limits, and a private admin capability.
 
 ## Architecture
 
@@ -33,6 +40,10 @@ React/Vite ── Supabase Auth + Postgres/RLS
      │
      ├── HTTPS assets/invitations/snapshots ── Cloudflare Worker ── R2
      └── HTTPS socket ticket ── authenticated WebSocket ── Durable Object per board ── SQLite
+
+Public portfolio visitor ── signed guest/profile session ── CollabSpace Durable Object
+        ├── ephemeral movement/presence
+        └── persistent text, notes, and strokes
 ```
 
 Supabase stores identity, profiles, board metadata, access, invitations,
@@ -99,11 +110,12 @@ npx wrangler secret put SUPABASE_ANON_KEY
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 npx wrangler secret put ALLOWED_ORIGINS
 npx wrangler secret put ASSET_SIGNING_SECRET
+npx wrangler secret put PORTFOLIO_ADMIN_USER_ID # optional, your Supabase user ID
 npx wrangler deploy
 ```
 
-`wrangler.jsonc` declares the R2 binding, board Durable Object, rate-limiter
-Durable Object, and SQLite migrations. Do not rename deployed Durable Object
+`wrangler.jsonc` declares the R2 binding, board and portfolio Durable Objects,
+rate-limiter Durable Object, and SQLite migrations. Do not rename deployed Durable Object
 classes without a migration plan.
 
 ## Development
@@ -172,8 +184,9 @@ RLS is enabled on every application table. Review
 - Sending invitation emails is not bundled; the owner receives a secure link
   to copy. Integrate a transactional email provider server-side if automatic
   delivery is required.
-- Public/link access currently requires an authenticated account. Anonymous
-  public viewing is intentionally not enabled.
+- Public/link board access still requires an authenticated account. The
+  portfolio room is intentionally separate and gives anonymous visitors only a
+  narrowly scoped, signed public identity.
 - Thumbnail generation is not implemented; the dashboard uses a neutral
   fallback.
 - Asset cleanup on individual shape deletion is best-effort for assets uploaded

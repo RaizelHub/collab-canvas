@@ -1,4 +1,4 @@
-import { Clock3, Copy, ExternalLink, Pencil, Trash2 } from "lucide-react";
+import { Clock3, Copy, ExternalLink, Pencil, Star, Trash2 } from "lucide-react";
 import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 
 import type { LocalBoard } from "./local-board";
@@ -6,12 +6,14 @@ import type { LocalBoard } from "./local-board";
 interface BoardCardProps<Board extends LocalBoard> {
   board: Board;
   canManage?: boolean;
+  isStarred?: boolean;
   ownerLabel?: string;
   roleLabel?: string;
   onDelete: (board: Board) => void;
   onDuplicate?: (board: Board) => void;
   onOpen: (board: Board) => void;
   onRename: (board: Board, title: string) => string | null;
+  onToggleStar?: (board: Board) => void;
 }
 
 function formatLastOpened(isoDate: string): string {
@@ -24,10 +26,12 @@ function formatLastOpened(isoDate: string): string {
 export function BoardCard<Board extends LocalBoard>({
   board,
   canManage = true,
+  isStarred,
   onDelete,
   onDuplicate,
   onOpen,
   onRename,
+  onToggleStar,
   ownerLabel,
   roleLabel,
 }: BoardCardProps<Board>) {
@@ -72,30 +76,46 @@ export function BoardCard<Board extends LocalBoard>({
 
   return (
     <article className="group flex min-h-36 flex-col border border-line bg-panel p-4 transition hover:border-line-strong hover:shadow-sm">
-      {isRenaming ? (
-        <form onSubmit={handleSubmit}>
-          <label className="sr-only" htmlFor={`board-title-${board.id}`}>
-            Board title
-          </label>
-          <input
-            autoFocus
-            className="h-9 w-full border border-accent bg-canvas px-2 text-sm font-semibold outline-none ring-2 ring-accent-soft"
-            id={`board-title-${board.id}`}
-            maxLength={120}
-            onBlur={saveRename}
-            onChange={(event) => setDraftTitle(event.target.value)}
-            onKeyDown={handleKeyDown}
-            value={draftTitle}
-          />
-          {renameError && (
-            <p className="mt-1 text-xs text-danger" role="alert">
-              {renameError}
-            </p>
-          )}
-        </form>
-      ) : (
-        <h2 className="truncate text-sm font-semibold">{board.title}</h2>
-      )}
+      <div className="flex items-start justify-between gap-2">
+        {isRenaming ? (
+          <form className="flex-1" onSubmit={handleSubmit}>
+            <label className="sr-only" htmlFor={`board-title-${board.id}`}>
+              Board title
+            </label>
+            <input
+              autoFocus
+              className="h-9 w-full border border-accent bg-canvas px-2 text-sm font-semibold outline-none ring-2 ring-accent-soft"
+              id={`board-title-${board.id}`}
+              maxLength={120}
+              onBlur={saveRename}
+              onChange={(event) => setDraftTitle(event.target.value)}
+              onKeyDown={handleKeyDown}
+              value={draftTitle}
+            />
+            {renameError && (
+              <p className="mt-1 text-xs text-danger" role="alert">
+                {renameError}
+              </p>
+            )}
+          </form>
+        ) : (
+          <h2 className="flex-1 truncate text-sm font-semibold">{board.title}</h2>
+        )}
+        {onToggleStar && (
+          <button
+            aria-label={isStarred ? `Unstar ${board.title}` : `Star ${board.title}`}
+            className="grid size-7 shrink-0 place-items-center rounded text-muted transition-colors hover:text-amber-500"
+            onClick={() => onToggleStar(board)}
+            type="button"
+          >
+            <Star
+              className={`size-4 ${
+                isStarred ? "fill-amber-400 text-amber-500" : "text-muted"
+              }`}
+            />
+          </button>
+        )}
+      </div>
 
       <p className="mt-2 flex items-center gap-1.5 text-xs text-muted">
         <Clock3 aria-hidden="true" className="size-3.5" />

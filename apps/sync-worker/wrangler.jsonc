@@ -21,6 +21,10 @@
         "name": "BOARD_DELETIONS",
         "class_name": "BoardDeletionCoordinator",
       },
+      {
+        "name": "COLLAB_SPACE",
+        "class_name": "CollabSpace",
+      },
     ],
   },
   "migrations": [
@@ -39,6 +43,10 @@
     {
       "tag": "v4",
       "new_sqlite_classes": ["BoardDeletionCoordinator"],
+    },
+    {
+      "tag": "v5",
+      "new_sqlite_classes": ["CollabSpace"],
     },
   ],
   "r2_buckets": [

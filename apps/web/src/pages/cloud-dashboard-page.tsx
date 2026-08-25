@@ -1,4 +1,4 @@
-import { LayoutGrid, LoaderCircle, Search } from "lucide-react";
+import { LayoutGrid, LoaderCircle, Search, Sparkles, Star } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 
@@ -6,6 +6,9 @@ import { useAuth } from "../features/auth/auth-context";
 import { BoardCard } from "../features/boards/board-card";
 import { CreateBoardButton } from "../features/boards/create-board-button";
 import { DeleteBoardDialog } from "../features/boards/delete-board-dialog";
+import { isBoardStarred, toggleStarredBoard } from "../features/boards/favorites";
+import { TemplatePickerDialog } from "../features/templates/template-picker-dialog";
+import type { BoardTemplate } from "../features/templates/templates";
 import {
   createSupabaseBoardRepository,
   type CloudBoard,
@@ -35,7 +38,15 @@ export function CloudDashboardPage() {
   const [sortBy, setSortBy] = useState<"recent" | "updated" | "title">(
     "recent",
   );
+  const [starredOnly, setStarredOnly] = useState(false);
+  const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
+  const [starredIdsVersion, setStarredIdsVersion] = useState(0);
   const [boardToDelete, setBoardToDelete] = useState<CloudBoard | null>(null);
+
+  const toggleStar = (board: CloudBoard) => {
+    toggleStarredBoard(board.id);
+    setStarredIdsVersion((v) => v + 1);
+  };
 
   const refreshBoards = useCallback(async () => {
     if (!repository) return;
@@ -164,6 +175,22 @@ export function CloudDashboardPage() {
     }
   };
 
+  const handleCreateFromTemplate = async (template: BoardTemplate) => {
+    if (!repository || busy) return;
+    setBusy(true);
+    try {
+      const board = await repository.create(template.name);
+      navigate(`/board/${board.id}`, { state: { templateId: template.id } });
+    } catch (createError) {
+      setError(
+        createError instanceof Error
+          ? createError.message
+          : "The board could not be created.",
+      );
+      setBusy(false);
+    }
+  };
+
   const normalizedSearch = searchQuery.trim().toLocaleLowerCase();
   const routeFilter =
     location.pathname === "/boards/shared"
@@ -176,7 +203,8 @@ export function CloudDashboardPage() {
       (board) =>
         board.title.toLocaleLowerCase().includes(normalizedSearch) &&
         (roleFilter === "all" || board.role === roleFilter) &&
-        (routeFilter !== "shared" || !board.canManage),
+        (routeFilter !== "shared" || !board.canManage) &&
+        (!starredOnly || isBoardStarred(board.id)),
     )
     .sort((left, right) => {
       if (sortBy === "title") return left.title.localeCompare(right.title);
@@ -195,10 +223,20 @@ export function CloudDashboardPage() {
             Boards
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Your boards and boards shared with you.
+            Your boards, templates, and shared collaborations.
           </p>
         </div>
-        <CreateBoardButton onCreate={() => void createBoard()} />
+        <div className="flex items-center gap-2">
+          <button
+            className="flex h-10 items-center gap-2 rounded-lg border border-line bg-panel px-3.5 text-sm font-medium text-ink shadow-xs transition hover:bg-hover hover:border-line-strong"
+            onClick={() => setIsTemplatePickerOpen(true)}
+            type="button"
+          >
+            <Sparkles className="size-4 text-accent" />
+            <span>New from Template</span>
+          </button>
+          <CreateBoardButton onCreate={() => void createBoard()} />
+        </div>
       </div>
 
       {error && (
@@ -217,8 +255,33 @@ export function CloudDashboardPage() {
         </div>
       )}
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
-        <h2 className="text-sm font-semibold">Recent boards</h2>
+      {/* Tabs & Filters */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+        <div className="flex items-center gap-1">
+          <button
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+              !starredOnly
+                ? "bg-accent text-white"
+                : "border border-line bg-panel text-muted hover:bg-hover hover:text-ink"
+            }`}
+            onClick={() => setStarredOnly(false)}
+            type="button"
+          >
+            All Boards ({boards.length})
+          </button>
+          <button
+            className={`flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+              starredOnly
+                ? "bg-amber-500 text-white"
+                : "border border-line bg-panel text-muted hover:bg-hover hover:text-ink"
+            }`}
+            onClick={() => setStarredOnly(true)}
+            type="button"
+          >
+            <Star className={`size-3 ${starredOnly ? "fill-white" : ""}`} />
+            Starred
+          </button>
+        </div>
         <label>
           <span className="sr-only">Filter by role</span>
           <select
@@ -282,11 +345,13 @@ export function CloudDashboardPage() {
             <BoardCard
               board={board}
               canManage={board.canManage}
+              isStarred={isBoardStarred(board.id)}
               key={board.id}
               onDelete={setBoardToDelete}
               onDuplicate={(target) => void duplicateBoard(target)}
               onOpen={openBoard}
               onRename={renameBoard}
+              onToggleStar={toggleStar}
               ownerLabel={board.ownerName}
               roleLabel={board.role}
             />
@@ -303,12 +368,18 @@ export function CloudDashboardPage() {
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
               {boards.length === 0
-                ? "Create a board to start collaborating."
-                : "Try a different search term."}
+                ? "Create a board or use a template to start collaborating."
+                : "Try a different search term or filter."}
             </p>
           </div>
         </section>
       )}
+
+      <TemplatePickerDialog
+        isOpen={isTemplatePickerOpen}
+        onClose={() => setIsTemplatePickerOpen(false)}
+        onSelectTemplate={(template) => void handleCreateFromTemplate(template)}
+      />
 
       {boardToDelete && (
         <DeleteBoardDialog

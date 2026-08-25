@@ -1,15 +1,22 @@
 import {
   ArrowLeft,
   Check,
+  Compass,
   Copy,
   Ellipsis,
+  EyeOff,
   FileDown,
+  Grid2X2,
+  HelpCircle,
+  LayoutGrid,
   LoaderCircle,
   Moon,
   RotateCcw,
   Save,
   Share2,
+  Sparkles,
   Sun,
+  Timer,
   X,
 } from "lucide-react";
 import {
@@ -21,13 +28,15 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import { PDFDocument } from "pdf-lib";
 import type { Editor } from "tldraw";
+import { createUserId } from "@tldraw/tlschema";
 import { z } from "zod";
 
 import { AccessibleDialog } from "../components/accessible-dialog";
 import { BrandMark } from "../components/brand-mark";
+import { KeyboardShortcutsDialog } from "../components/keyboard-shortcuts-dialog";
 import { useAuth } from "../features/auth/auth-context";
 import {
   createSupabaseBoardRepository,
@@ -41,6 +50,13 @@ import {
   getPresenceChanges,
   type PresenceParticipant,
 } from "../features/collaboration/presence";
+import { CursorReactions } from "../features/facilitation/cursor-reactions";
+import { MeetingTimer } from "../features/facilitation/meeting-timer";
+import { BOARD_TEMPLATES } from "../features/templates/templates";
+import { TemplatePickerDialog } from "../features/templates/template-picker-dialog";
+import { CanvasBackgroundSwitch } from "../features/whiteboard/canvas-background-switch";
+import { MiniMap } from "../features/whiteboard/mini-map";
+import { tidySelectedShapes, sortSelectedNotesByColor } from "../features/whiteboard/tidy-notes";
 import { WhiteboardCanvas } from "../features/whiteboard/whiteboard-canvas";
 import { getBoardPersistenceKey } from "../features/whiteboard/persistence-key";
 import { createAccessibleBoardHtml } from "../features/whiteboard/accessible-export";
@@ -69,6 +85,7 @@ const snapshotRowsSchema = z.array(
 
 export function CloudWhiteboardPage() {
   const { boardId } = useParams();
+  const location = useLocation();
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const repository = useMemo(
@@ -91,11 +108,15 @@ export function CloudWhiteboardPage() {
     null,
   );
   const editorRef = useRef<Editor | null>(null);
+  const appliedTemplateRef = useRef(false);
   const collaborationListenerRef = useRef<(() => void) | null>(null);
   const presenceSnapshotRef = useRef<PresenceParticipant[] | null>(null);
   const presenceAnnouncementTimerRef = useRef<number | null>(null);
   const [participants, setParticipants] = useState<PresenceParticipant[]>([]);
   const [presenceAnnouncement, setPresenceAnnouncement] = useState("");
+  const [followingParticipant, setFollowingParticipant] = useState<PresenceParticipant | null>(null);
+  const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [snapshots, setSnapshots] = useState<
     z.infer<typeof snapshotRowsSchema>
   >([]);
@@ -104,6 +125,47 @@ export function CloudWhiteboardPage() {
     { kind: "clear" } | { kind: "restore"; snapshotId: string } | null
   >(null);
   const isCancellingTitleRef = useRef(false);
+
+  const toggleFollowUser = (participant: PresenceParticipant) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    if (followingParticipant?.id === participant.id) {
+      editor.stopFollowingUser();
+      setFollowingParticipant(null);
+    } else {
+      const rawId = participant.id.startsWith("user:")
+        ? participant.id.slice(5)
+        : participant.id;
+      editor.startFollowingUser(createUserId(rawId));
+      setFollowingParticipant(participant);
+    }
+  };
+
+  const stopFollowing = () => {
+    editorRef.current?.stopFollowingUser();
+    setFollowingParticipant(null);
+  };
+
+  // Keyboard shortcut listener for '?'
+  useEffect(() => {
+    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.isContentEditable
+      ) {
+        return;
+      }
+      if (e.key === "?" || (e.shiftKey && e.key === "/")) {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const loadBoard = useCallback(async () => {
     if (!repository || !boardId) return;
@@ -422,7 +484,29 @@ export function CloudWhiteboardPage() {
             <Check className="size-3.5" />
             {syncStatus}
           </span>
-          <CollaboratorMenu participants={participants} role={board.role} />
+
+          {/* Meeting Timer */}
+          <MeetingTimer />
+
+          {/* Canvas Background / Grid */}
+          <CanvasBackgroundSwitch editor={editorRef.current} />
+
+          {/* Templates Picker Button */}
+          <button
+            className="flex h-8 items-center gap-1.5 rounded border border-line bg-panel px-2.5 text-xs font-medium text-muted hover:bg-hover hover:text-ink focus-visible:ring-2 focus-visible:ring-accent"
+            onClick={() => setIsTemplatePickerOpen(true)}
+            type="button"
+          >
+            <Sparkles className="size-3.5 text-accent" />
+            <span className="hidden sm:inline">Templates</span>
+          </button>
+
+          <CollaboratorMenu
+            followingUserId={followingParticipant?.id}
+            onToggleFollow={toggleFollowUser}
+            participants={participants}
+            role={board.role}
+          />
           <button
             aria-label={`Use ${theme === "light" ? "dark" : "light"} mode`}
             className="grid size-8 place-items-center text-muted hover:bg-hover"
@@ -479,6 +563,18 @@ export function CloudWhiteboardPage() {
               </button>
             </div>
           </details>
+
+          {/* Shortcuts Help */}
+          <button
+            aria-label="Keyboard Shortcuts (?)"
+            className="grid size-8 place-items-center rounded text-muted hover:bg-hover hover:text-ink"
+            onClick={() => setIsShortcutsOpen(true)}
+            title="Keyboard Shortcuts (?)"
+            type="button"
+          >
+            <HelpCircle className="size-4" />
+          </button>
+
           <details className="relative">
             <summary
               aria-label="Board menu"
@@ -489,6 +585,29 @@ export function CloudWhiteboardPage() {
             <div className="absolute right-0 top-10 z-20 w-72 border border-line bg-panel p-3 text-xs shadow-lg">
               <p className="font-medium">Board ID</p>
               <p className="mt-1 break-all font-mono text-muted">{board.id}</p>
+
+              {/* Tidy Shapes actions */}
+              <div className="mt-3 border-t border-line pt-3">
+                <p className="font-medium">Layout & Tidy</p>
+                <div className="mt-1.5 flex gap-2">
+                  <button
+                    className="flex h-7 items-center gap-1 rounded border border-line bg-canvas px-2 text-[11px] font-medium text-muted hover:bg-hover hover:text-ink"
+                    onClick={() => editorRef.current && tidySelectedShapes(editorRef.current)}
+                    type="button"
+                  >
+                    <LayoutGrid className="size-3" />
+                    Tidy into Grid
+                  </button>
+                  <button
+                    className="flex h-7 items-center gap-1 rounded border border-line bg-canvas px-2 text-[11px] font-medium text-muted hover:bg-hover hover:text-ink"
+                    onClick={() => editorRef.current && sortSelectedNotesByColor(editorRef.current)}
+                    type="button"
+                  >
+                    Sort by Color
+                  </button>
+                </div>
+              </div>
+
               {board.canManage && (
                 <div className="mt-3 border-t border-line pt-3">
                   <div className="flex items-center justify-between">
@@ -573,12 +692,43 @@ export function CloudWhiteboardPage() {
           {presenceAnnouncement}
         </p>
       )}
+      {followingParticipant && (
+        <div className="absolute left-1/2 top-14 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full border border-accent bg-panel/95 px-3.5 py-1 text-xs shadow-lg backdrop-blur-sm">
+          <span className="size-2 animate-ping rounded-full bg-accent" />
+          <span>
+            Following <strong>{followingParticipant.name}</strong>
+          </span>
+          <button
+            className="flex items-center gap-1 rounded bg-hover px-2 py-0.5 font-medium text-ink hover:bg-line"
+            onClick={stopFollowing}
+            type="button"
+          >
+            <EyeOff className="size-3" /> Stop
+          </button>
+        </div>
+      )}
       <div className="relative min-h-0 flex-1" id="main-content" tabIndex={-1}>
         <WhiteboardCanvas
           boardId={board.id}
           onConnectionStatus={setConnectionStatus}
           onMount={(editor) => {
             editorRef.current = editor;
+
+            // Apply template if navigated from "New from Template"
+            const templateId = (location.state as { templateId?: string } | null)?.templateId;
+            if (templateId && !appliedTemplateRef.current) {
+              appliedTemplateRef.current = true;
+              const template = BOARD_TEMPLATES.find((t) => t.id === templateId);
+              if (template) {
+                setTimeout(() => {
+                  if (editor.getCurrentPageShapes().length === 0) {
+                    template.apply(editor, 100, 100);
+                    editor.zoomToFit({ animation: { duration: 300 } });
+                  }
+                }, 200);
+              }
+            }
+
             const updateParticipants = () => {
               const nextParticipants = buildPresenceParticipants(
                 {
@@ -629,6 +779,11 @@ export function CloudWhiteboardPage() {
           }}
           persistenceKey={getBoardPersistenceKey(board.id)}
         />
+        {/* Live Cursor Reactions & Laser Pointer */}
+        <CursorReactions editor={editorRef.current} />
+
+        {/* Canvas Mini-Map Navigator */}
+        <MiniMap editor={editorRef.current} />
       </div>
       {shareOpen && (
         <ShareBoardDialog
@@ -637,6 +792,15 @@ export function CloudWhiteboardPage() {
           onUpdated={setBoard}
         />
       )}
+      <TemplatePickerDialog
+        editor={editorRef.current}
+        isOpen={isTemplatePickerOpen}
+        onClose={() => setIsTemplatePickerOpen(false)}
+      />
+      <KeyboardShortcutsDialog
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+      />
       {confirmation && (
         <ConfirmBoardActionDialog
           action={confirmation.kind}

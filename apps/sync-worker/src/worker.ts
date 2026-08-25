@@ -27,7 +27,14 @@ import {
   scheduleBoardCleanup,
 } from "./boards/board-deletion-coordinator";
 import { BoardRoom } from "./durable-objects/board-room";
+import { CollabSpace } from "./durable-objects/collab-space";
 import { consumeRateLimit, RateLimiter } from "./durable-objects/rate-limiter";
+import {
+  claimsForUser,
+  createGuestClaims,
+  issueVisitorToken,
+  verifyVisitorToken,
+} from "./portfolio/visitor-token";
 import { createInvitation } from "./sharing/invitation-handler";
 import {
   regenerateShareLink,
@@ -39,7 +46,13 @@ import { validateWorkerEnvironment } from "./validation/environment";
 import { boardIdSchema } from "./validation/request";
 import { z } from "zod";
 
-export { BoardDeletionCoordinator, BoardRoom, RateLimiter, SocketTicketBroker };
+export {
+  BoardDeletionCoordinator,
+  BoardRoom,
+  CollabSpace,
+  RateLimiter,
+  SocketTicketBroker,
+};
 
 function json(
   request: Request,
@@ -58,6 +71,163 @@ function readBearerToken(request: Request): string | null {
     return authorization.slice(7);
   }
   return null;
+}
+
+function collabSpace(env: Env) {
+  return env.COLLAB_SPACE.get(env.COLLAB_SPACE.idFromName("portfolio"));
+}
+
+async function handlePortfolioRequest(
+  request: Request,
+  env: Env,
+): Promise<Response | null> {
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith("/portfolio/")) return null;
+  if (!isAllowedOrigin(request, env)) {
+    return json(request, env, { error: "origin_not_allowed" }, 403);
+  }
+
+  if (url.pathname === "/portfolio/session" && request.method === "POST") {
+    const clientAddress =
+      request.headers.get("CF-Connecting-IP") ?? "unknown-client";
+    if (
+      !(await consumeRateLimit(
+        env,
+        `portfolio-session:${clientAddress}`,
+        30,
+        3600,
+      ))
+    ) {
+      return json(request, env, { error: "session_rate_limited" }, 429);
+    }
+    const accessToken = readBearerToken(request);
+    const account = accessToken
+      ? await verifyAccessToken(accessToken, env)
+      : null;
+    let publicProfile = account;
+    if (account) {
+      try {
+        const profileResponse = await fetch(
+          `${env.SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(account.id)}&select=display_name,avatar_url&limit=1`,
+          {
+            headers: {
+              apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+              Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+            },
+          },
+        );
+        const profiles = z
+          .array(
+            z.object({
+              display_name: z.string().trim().min(1).max(80),
+              avatar_url: z.string().url().nullable(),
+            }),
+          )
+          .safeParse(await profileResponse.json().catch(() => null));
+        if (profiles.success && profiles.data[0]) {
+          publicProfile = {
+            ...account,
+            displayName: profiles.data[0].display_name,
+            avatarUrl: profiles.data[0].avatar_url,
+          };
+        }
+      } catch {
+        publicProfile = account;
+      }
+    }
+    const returning = !account
+      ? await verifyVisitorToken(
+          request.headers.get("X-Visitor-Token") ?? "",
+          env.ASSET_SIGNING_SECRET,
+        )
+      : null;
+    const claims = publicProfile
+      ? claimsForUser(publicProfile, env.PORTFOLIO_ADMIN_USER_ID)
+      : (returning ?? createGuestClaims());
+    const token = await issueVisitorToken(claims, env.ASSET_SIGNING_SECRET);
+    return json(request, env, {
+      token,
+      visitor: {
+        id: claims.id,
+        name: claims.name,
+        avatarUrl: claims.avatarUrl,
+        color: claims.color,
+        isAdmin: claims.isAdmin,
+      },
+    });
+  }
+
+  if (url.pathname === "/portfolio/state" && request.method === "GET") {
+    const response = await collabSpace(env).fetch(
+      "https://collab.internal/state",
+    );
+    const headers = corsHeaders(request, env);
+    headers.set("Content-Type", "application/json; charset=utf-8");
+    headers.set("Cache-Control", "no-store");
+    return new Response(response.body, { status: response.status, headers });
+  }
+
+  if (
+    url.pathname === "/portfolio/socket-ticket" &&
+    request.method === "POST"
+  ) {
+    const claims = await verifyVisitorToken(
+      request.headers.get("X-Visitor-Token") ?? "",
+      env.ASSET_SIGNING_SECRET,
+    );
+    if (!claims) {
+      return json(request, env, { error: "invalid_visitor_session" }, 401);
+    }
+    if (
+      !(await consumeRateLimit(env, `portfolio-ticket:${claims.id}`, 40, 60))
+    ) {
+      return json(request, env, { error: "connection_rate_limited" }, 429);
+    }
+    const expiresAt = Date.now() + 60_000;
+    const ticket = await issueVisitorToken(
+      { ...claims, expiresAt },
+      env.ASSET_SIGNING_SECRET,
+    );
+    return json(request, env, {
+      ticket,
+      expiresAt: new Date(expiresAt).toISOString(),
+    });
+  }
+
+  if (
+    url.pathname === "/portfolio/connect" &&
+    request.headers.get("Upgrade")?.toLowerCase() === "websocket"
+  ) {
+    const clientAddress =
+      request.headers.get("CF-Connecting-IP") ?? "unknown-client";
+    if (
+      !(await consumeRateLimit(
+        env,
+        `portfolio-socket:${clientAddress}`,
+        40,
+        60,
+      ))
+    ) {
+      return json(request, env, { error: "connection_rate_limited" }, 429);
+    }
+    const token = url.searchParams.get("token") ?? "";
+    const ticketClaims = await verifyVisitorToken(
+      token,
+      env.ASSET_SIGNING_SECRET,
+    );
+    if (!ticketClaims || ticketClaims.expiresAt > Date.now() + 65_000) {
+      return json(request, env, { error: "invalid_visitor_session" }, 401);
+    }
+    const internalUrl = new URL("https://collab.internal/connect");
+    internalUrl.searchParams.set("token", token);
+    return collabSpace(env).fetch(
+      new Request(internalUrl, {
+        headers: request.headers,
+        method: request.method,
+      }),
+    );
+  }
+  return json(request, env, { error: "not_found" }, 404);
 }
 
 async function handleSocketTicketRequest(
@@ -487,6 +657,12 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/health") {
       return json(request, env, { status: "ok" });
+    }
+    if (url.pathname.startsWith("/portfolio/")) {
+      return (
+        (await handlePortfolioRequest(request, env)) ??
+        json(request, env, { error: "not_found" }, 404)
+      );
     }
     if (url.pathname.startsWith("/socket-ticket/")) {
       return (

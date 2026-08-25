@@ -27,6 +27,12 @@ resource exhaustion, secret leakage, and destructive board operations.
 - Board deletion requires an owner-authorized Worker cleanup before metadata
   deletion. Snapshot restore is owner-only.
 - Logs contain board/user IDs and status codes, not access tokens or secrets.
+- Public portfolio identities are HMAC-signed and verified again inside the
+  Durable Object. Existing public profile name/avatar data may be reused, but
+  email, IP, location, fingerprint, and analytics fields are never exposed.
+- Public contributions reject URLs and a basic profanity set, cap text at 160
+  characters, cap drawing geometry, enforce per-visitor object limits, and
+  derive ownership and admin status only from verified claims.
 
 ## Rate limits
 
@@ -37,6 +43,12 @@ The SQLite `RateLimiter` Durable Object applies fixed-window limits:
 - 60 asset uploads per user per hour
 - 10 invitation creations per user per hour
 - 50 simultaneous sockets per board
+- 40 simultaneous visitors in the portfolio room
+- 30 portfolio session issues per client address per hour
+- 40 portfolio socket attempts per client address per minute
+- 40 portfolio socket-ticket issues per visitor per minute
+- about 22 accepted movement snapshots per second per active session
+- one new public object per visitor every 2.5 seconds, up to 24 active objects
 
 Board deletion removes metadata first to revoke access, then delegates room/R2
 cleanup to a Durable Object that retries transient failures.
@@ -54,7 +66,7 @@ Cloudflare Rate Limiting.
 - Use separate Supabase/Cloudflare projects per environment.
 - Add automated dependency scanning and review current npm audit findings
   before release.
-- Anonymous public viewing is not enabled. If added, use dedicated scoped,
-  revocable grants rather than weakening authenticated RLS.
+- The anonymous portfolio grant is scoped only to the public room. Do not reuse
+  it for boards, assets, invitations, profile writes, or PostgreSQL access.
 - Automated email delivery needs a server-side provider and must never expose
   its API key to Vite.

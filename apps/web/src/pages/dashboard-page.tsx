@@ -1,16 +1,19 @@
-import { LayoutGrid, Search } from "lucide-react";
+import { LayoutGrid, Search, Sparkles, Star } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { BoardCard } from "../features/boards/board-card";
 import { CreateBoardButton } from "../features/boards/create-board-button";
 import { DeleteBoardDialog } from "../features/boards/delete-board-dialog";
+import { isBoardStarred, toggleStarredBoard } from "../features/boards/favorites";
 import type { LocalBoard } from "../features/boards/local-board";
 import {
   localBoardRepository,
   type LocalBoardRepository,
   type LocalBoardRepositoryError,
 } from "../features/boards/local-board-repository";
+import { TemplatePickerDialog } from "../features/templates/template-picker-dialog";
+import type { BoardTemplate } from "../features/templates/templates";
 import { clientEnvironment } from "../lib/env";
 import { isSupabaseConfigured } from "../lib/supabase";
 import { CloudDashboardPage } from "./cloud-dashboard-page";
@@ -43,7 +46,15 @@ function LocalDashboardPage({
       initialResult.ok ? null : initialResult.error,
     );
   const [searchQuery, setSearchQuery] = useState("");
+  const [starredOnly, setStarredOnly] = useState(false);
+  const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
+  const [starredIdsVersion, setStarredIdsVersion] = useState(0);
   const [boardToDelete, setBoardToDelete] = useState<LocalBoard | null>(null);
+
+  const toggleStar = (board: LocalBoard) => {
+    toggleStarredBoard(board.id);
+    setStarredIdsVersion((v) => v + 1);
+  };
 
   const refreshBoards = useCallback(() => {
     const result = repository.getBoards();
@@ -105,9 +116,20 @@ function LocalDashboardPage({
     refreshBoards();
   };
 
+  const handleCreateFromTemplate = (template: BoardTemplate) => {
+    const result = repository.createBoard(template.name);
+    if (!result.ok) {
+      setStorageError(result.error);
+      return;
+    }
+    navigate(`/board/${result.value.id}`, { state: { templateId: template.id } });
+  };
+
   const normalizedSearch = searchQuery.trim().toLocaleLowerCase();
-  const filteredBoards = boards.filter((board) =>
-    board.title.toLocaleLowerCase().includes(normalizedSearch),
+  const filteredBoards = boards.filter(
+    (board) =>
+      board.title.toLocaleLowerCase().includes(normalizedSearch) &&
+      (!starredOnly || isBoardStarred(board.id)),
   );
 
   return (
@@ -121,11 +143,21 @@ function LocalDashboardPage({
             Boards
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Your boards and boards shared with you appear here.
+            Your boards, templates, and whiteboard canvases.
           </p>
         </div>
 
-        <CreateBoardButton onCreate={createLocalBoard} />
+        <div className="flex items-center gap-2">
+          <button
+            className="flex h-10 items-center gap-2 rounded-lg border border-line bg-panel px-3.5 text-sm font-medium text-ink shadow-xs transition hover:bg-hover hover:border-line-strong"
+            onClick={() => setIsTemplatePickerOpen(true)}
+            type="button"
+          >
+            <Sparkles className="size-4 text-accent" />
+            <span>New from Template</span>
+          </button>
+          <CreateBoardButton onCreate={createLocalBoard} />
+        </div>
       </div>
 
       {clientEnvironment.status === "invalid" && (
@@ -150,13 +182,38 @@ function LocalDashboardPage({
           <span className="font-medium">Local foundation mode.</span>{" "}
           <span className="text-muted">
             Add the two Supabase values in <code>apps/web/.env.local</code> when
-            Phase 2 begins. Local boards remain available now.
+            cloud sync begins. Local boards remain available now.
           </span>
         </div>
       )}
 
-      <div className="mt-8 flex items-center justify-between gap-3 border-b border-line pb-3">
-        <h2 className="text-sm font-semibold">Recent local boards</h2>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+        <div className="flex items-center gap-1">
+          <button
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+              !starredOnly
+                ? "bg-accent text-white"
+                : "border border-line bg-panel text-muted hover:bg-hover hover:text-ink"
+            }`}
+            onClick={() => setStarredOnly(false)}
+            type="button"
+          >
+            All Boards ({boards.length})
+          </button>
+          <button
+            className={`flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+              starredOnly
+                ? "bg-amber-500 text-white"
+                : "border border-line bg-panel text-muted hover:bg-hover hover:text-ink"
+            }`}
+            onClick={() => setStarredOnly(true)}
+            type="button"
+          >
+            <Star className={`size-3 ${starredOnly ? "fill-white" : ""}`} />
+            Starred
+          </button>
+        </div>
+
         <label className="relative w-full max-w-xs">
           <span className="sr-only">Search boards</span>
           <Search
@@ -201,10 +258,12 @@ function LocalDashboardPage({
           {filteredBoards.map((board) => (
             <BoardCard
               board={board}
+              isStarred={isBoardStarred(board.id)}
               key={board.id}
               onDelete={setBoardToDelete}
               onOpen={openBoard}
               onRename={renameBoard}
+              onToggleStar={toggleStar}
             />
           ))}
         </section>
@@ -219,8 +278,8 @@ function LocalDashboardPage({
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
               {boards.length === 0
-                ? "Create a local board to start drawing."
-                : "Try a different search term."}
+                ? "Create a local board or choose a template to start drawing."
+                : "Try a different search term or filter."}
             </p>
             {boards.length === 0 && (
               <div className="mt-5 flex justify-center">
@@ -230,6 +289,12 @@ function LocalDashboardPage({
           </div>
         </section>
       )}
+
+      <TemplatePickerDialog
+        isOpen={isTemplatePickerOpen}
+        onClose={() => setIsTemplatePickerOpen(false)}
+        onSelectTemplate={handleCreateFromTemplate}
+      />
 
       {boardToDelete && (
         <DeleteBoardDialog

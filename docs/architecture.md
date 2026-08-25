@@ -12,6 +12,34 @@ Canvas records are not copied into PostgreSQL. Cursor and selection presence is
 ephemeral and travels through tldraw sync; it is not stored as application
 history.
 
+The portfolio room is a separate public boundary. Its `CollabSpace` Durable
+Object stores only deliberately public text, notes, strokes, and ownership
+metadata. Character positions, movement, direction, and active presence remain
+ephemeral. This keeps anonymous portfolio interaction isolated from private
+board authorization and storage.
+
+## Portfolio visitor flow
+
+1. The browser restores the existing Supabase session when one exists.
+2. `/portfolio/session` verifies that account and reuses its display name and
+   avatar, or verifies a returning guest token.
+3. A new guest receives a random privacy-safe ID/name and a year-long HMAC
+   token. No IP, fingerprint, email, or location enters their public identity.
+4. The long-lived visitor token is exchanged over HTTPS for a 60-second socket
+   ticket, so it never enters a WebSocket URL. Both the Worker and `CollabSpace`
+   verify that short-lived ticket. The Durable Object never trusts identity
+   headers.
+5. Local movement renders immediately. The browser sends at most about twelve
+   snapshots per second; the server rate-limits, sequence-checks, bounds, and
+   distance-checks each update.
+6. The Durable Object persists each public object under its own storage key and
+   derives ownership from the verified session. Only the owner or configured
+   portfolio admin can remove a contribution.
+
+The browser falls back to a generated local identity and device-local
+contributions when no sync URL is configured. That mode is clearly labeled and
+does not simulate other visitors.
+
 ## Authentication and permission flow
 
 1. Supabase restores the browser session.

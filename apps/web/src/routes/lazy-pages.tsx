@@ -33,3 +33,4 @@ export const ShareLinkPage = lazy(async () => ({
 export const WhiteboardPage = lazy(async () => ({
   default: (await import("../pages/whiteboard-page")).WhiteboardPage,
 }));
+

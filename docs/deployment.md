@@ -30,7 +30,10 @@ npx wrangler deploy
 ```
 
 Wrangler applies Durable Object migrations `v1` (board rooms), `v2` (rate
-limiters), `v3` (single-use socket tickets), and `v4` (retrying board cleanup).
+limiters), `v3` (single-use socket tickets), `v4` (retrying board cleanup), and
+`v5` (the public portfolio room).
+Optionally set `PORTFOLIO_ADMIN_USER_ID` to the portfolio owner's Supabase user
+ID before deployment to enable private remove/hide controls.
 Verify `/health`, an unauthorized ticket rejection, ticket replay rejection,
 an invalid origin rejection, and an authenticated owner/editor/viewer
 connection.

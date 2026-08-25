@@ -3,9 +3,13 @@ import {
   Check,
   Ellipsis,
   HardDrive,
+  HelpCircle,
+  LayoutGrid,
   Moon,
   Share2,
+  Sparkles,
   Sun,
+  Timer,
 } from "lucide-react";
 import {
   useEffect,
@@ -15,11 +19,20 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useLocation, useNavigate, useParams } from "react-router";
+import type { Editor } from "tldraw";
 
 import { BrandMark } from "../components/brand-mark";
+import { KeyboardShortcutsDialog } from "../components/keyboard-shortcuts-dialog";
 import { LocalModeBadge } from "../components/local-mode-badge";
 import { localBoardRepository } from "../features/boards/local-board-repository";
+import { CursorReactions } from "../features/facilitation/cursor-reactions";
+import { MeetingTimer } from "../features/facilitation/meeting-timer";
+import { BOARD_TEMPLATES } from "../features/templates/templates";
+import { TemplatePickerDialog } from "../features/templates/template-picker-dialog";
+import { CanvasBackgroundSwitch } from "../features/whiteboard/canvas-background-switch";
+import { MiniMap } from "../features/whiteboard/mini-map";
+import { tidySelectedShapes, sortSelectedNotesByColor } from "../features/whiteboard/tidy-notes";
 import { getBoardPersistenceKey } from "../features/whiteboard/persistence-key";
 import { WhiteboardCanvas } from "../features/whiteboard/whiteboard-canvas";
 import { useTheme } from "../hooks/use-theme";
@@ -36,7 +49,12 @@ export function WhiteboardPage() {
 
 function LocalWhiteboardPage() {
   const { boardId } = useParams();
+  const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const editorRef = useRef<Editor | null>(null);
+  const appliedTemplateRef = useRef(false);
+  const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const initialBoardResult = useMemo(
     () =>
       boardId
@@ -56,6 +74,26 @@ function LocalWhiteboardPage() {
   const [saveStatus, setSaveStatus] = useState<
     "Saved locally" | "Saving locally" | "Local changes"
   >("Saved locally");
+
+  // Keyboard shortcut listener for '?'
+  useEffect(() => {
+    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.isContentEditable
+      ) {
+        return;
+      }
+      if (e.key === "?" || (e.shiftKey && e.key === "/")) {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (!boardId || !board) return;
@@ -185,6 +223,22 @@ function LocalWhiteboardPage() {
             )}
             {saveStatus}
           </span>
+          {/* Meeting Timer */}
+          <MeetingTimer />
+
+          {/* Canvas Background Grid */}
+          <CanvasBackgroundSwitch editor={editorRef.current} />
+
+          {/* Templates Button */}
+          <button
+            className="flex h-8 items-center gap-1.5 rounded border border-line bg-panel px-2.5 text-xs font-medium text-muted hover:bg-hover hover:text-ink focus-visible:ring-2 focus-visible:ring-accent"
+            onClick={() => setIsTemplatePickerOpen(true)}
+            type="button"
+          >
+            <Sparkles className="size-3.5 text-accent" />
+            <span className="hidden sm:inline">Templates</span>
+          </button>
+
           <span className="hidden lg:inline-flex">
             <LocalModeBadge />
           </span>
@@ -200,15 +254,18 @@ function LocalWhiteboardPage() {
               <Sun aria-hidden="true" className="size-4" />
             )}
           </button>
+
+          {/* Shortcuts Help */}
           <button
-            className="flex h-8 items-center gap-2 border border-line bg-panel px-3 text-xs font-medium text-muted"
-            disabled
-            title="Sharing requires a connected account"
+            aria-label="Keyboard Shortcuts (?)"
+            className="grid size-8 place-items-center rounded text-muted hover:bg-hover hover:text-ink"
+            onClick={() => setIsShortcutsOpen(true)}
+            title="Keyboard Shortcuts (?)"
             type="button"
           >
-            <Share2 aria-hidden="true" className="size-3.5" />
-            <span className="hidden sm:inline">Share</span>
+            <HelpCircle className="size-4" />
           </button>
+
           <details className="relative">
             <summary
               aria-label="Board menu"
@@ -219,14 +276,73 @@ function LocalWhiteboardPage() {
             <div className="absolute right-0 top-10 z-20 w-64 border border-line bg-panel p-3 text-xs shadow-lg">
               <p className="font-medium text-ink">Local board ID</p>
               <p className="mt-1 break-all font-mono text-muted">{board.id}</p>
+
+              {/* Tidy Shapes actions */}
+              <div className="mt-3 border-t border-line pt-3">
+                <p className="font-medium text-ink">Layout & Tidy</p>
+                <div className="mt-1.5 flex gap-2">
+                  <button
+                    className="flex h-7 items-center gap-1 rounded border border-line bg-canvas px-2 text-[11px] font-medium text-muted hover:bg-hover hover:text-ink"
+                    onClick={() => editorRef.current && tidySelectedShapes(editorRef.current)}
+                    type="button"
+                  >
+                    <LayoutGrid className="size-3" />
+                    Tidy into Grid
+                  </button>
+                  <button
+                    className="flex h-7 items-center gap-1 rounded border border-line bg-canvas px-2 text-[11px] font-medium text-muted hover:bg-hover hover:text-ink"
+                    onClick={() => editorRef.current && sortSelectedNotesByColor(editorRef.current)}
+                    type="button"
+                  >
+                    Sort by Color
+                  </button>
+                </div>
+              </div>
             </div>
           </details>
         </div>
       </header>
 
       <div className="relative min-h-0 flex-1" id="main-content" tabIndex={-1}>
-        <WhiteboardCanvas boardId={board.id} persistenceKey={persistenceKey} />
+        <WhiteboardCanvas
+          boardId={board.id}
+          onMount={(editor) => {
+            editorRef.current = editor;
+
+            // Apply template if navigated from "New from Template"
+            const templateId = (location.state as { templateId?: string } | null)?.templateId;
+            if (templateId && !appliedTemplateRef.current) {
+              appliedTemplateRef.current = true;
+              const template = BOARD_TEMPLATES.find((t) => t.id === templateId);
+              if (template) {
+                setTimeout(() => {
+                  if (editor.getCurrentPageShapes().length === 0) {
+                    template.apply(editor, 100, 100);
+                    editor.zoomToFit({ animation: { duration: 300 } });
+                  }
+                }, 200);
+              }
+            }
+          }}
+          persistenceKey={persistenceKey}
+        />
+        {/* Live Cursor Reactions */}
+        <CursorReactions editor={editorRef.current} />
+
+        {/* MiniMap Radar */}
+        <MiniMap editor={editorRef.current} />
       </div>
+
+      <TemplatePickerDialog
+        editor={editorRef.current}
+        isOpen={isTemplatePickerOpen}
+        onClose={() => setIsTemplatePickerOpen(false)}
+      />
+
+      <KeyboardShortcutsDialog
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+      />
     </main>
   );
 }

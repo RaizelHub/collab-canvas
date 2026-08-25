@@ -10,7 +10,7 @@ export function App() {
       <Suspense
         fallback={
           <main className="grid min-h-screen place-items-center bg-canvas text-sm text-muted">
-            Loading CollabCanvas…
+            Opening portfolio…
           </main>
         }
       >

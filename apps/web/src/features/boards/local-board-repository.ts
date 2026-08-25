@@ -26,7 +26,7 @@ interface RepositoryOptions {
 
 export interface LocalBoardRepository {
   clearBoards(): RepositoryResult<void>;
-  createBoard(): RepositoryResult<LocalBoard>;
+  createBoard(initialTitle?: string): RepositoryResult<LocalBoard>;
   deleteBoard(id: string): RepositoryResult<boolean>;
   getBoardById(id: string): RepositoryResult<LocalBoard | null>;
   getBoards(): RepositoryResult<LocalBoard[]>;
@@ -152,7 +152,7 @@ export function createLocalBoardRepository(
     };
   };
 
-  const createBoard = (): RepositoryResult<LocalBoard> => {
+  const createBoard = (initialTitle = "Untitled board"): RepositoryResult<LocalBoard> => {
     const result = getBoards();
     if (!result.ok) {
       return result;
@@ -161,7 +161,7 @@ export function createLocalBoardRepository(
     const timestamp = now().toISOString();
     const board: LocalBoard = {
       id: generateId(),
-      title: "Untitled board",
+      title: initialTitle.trim() || "Untitled board",
       createdAt: timestamp,
       updatedAt: timestamp,
       lastOpenedAt: timestamp,

@@ -3,7 +3,11 @@ export function getRouteTitle(pathname: string): string {
   if (pathname === "/register") return "Create account — CollabCanvas";
   if (pathname === "/forgot-password") return "Reset password — CollabCanvas";
   if (pathname === "/reset-password") return "Choose password — CollabCanvas";
-  if (pathname === "/dashboard" || pathname.startsWith("/boards/")) {
+  if (
+    pathname === "/" ||
+    pathname === "/dashboard" ||
+    pathname.startsWith("/boards/")
+  ) {
     return "Boards — CollabCanvas";
   }
   if (pathname === "/profile") return "Profile — CollabCanvas";

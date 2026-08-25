@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router";
+import { Navigate, createBrowserRouter } from "react-router";
 
 import { ProtectedRoute } from "../features/auth/protected-route";
 import { AppShell } from "../layouts/app-shell";

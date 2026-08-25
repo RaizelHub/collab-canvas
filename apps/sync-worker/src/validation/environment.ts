@@ -6,6 +6,7 @@ export const workerEnvironmentSchema = z.object({
   SUPABASE_ANON_KEY: z.string().min(20),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
   SUPABASE_URL: z.url(),
+  PORTFOLIO_ADMIN_USER_ID: z.uuid().optional(),
 });
 
 export function validateWorkerEnvironment(env: Env) {
