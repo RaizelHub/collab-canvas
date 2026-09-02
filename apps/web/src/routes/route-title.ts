@@ -12,6 +12,9 @@ export function getRouteTitle(pathname: string): string {
   }
   if (pathname === "/profile") return "Profile — CollabCanvas";
   if (pathname === "/settings") return "Settings — CollabCanvas";
+  if (pathname === "/demo") return "Interactive Sandbox — CollabCanvas";
+  if (pathname === "/portfolio") return "Engineering Architecture — CollabCanvas";
+  if (pathname === "/collab") return "Collab Space — CollabCanvas";
   if (pathname.startsWith("/board/")) return "Board — CollabCanvas";
   if (pathname.startsWith("/invite/")) return "Board invitation — CollabCanvas";
   if (pathname.startsWith("/share/")) return "Shared board — CollabCanvas";

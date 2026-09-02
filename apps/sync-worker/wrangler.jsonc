@@ -1,62 +1,77 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "collab-canvas-sync",
-  "main": "src/worker.ts",
-  "compatibility_date": "2026-07-31",
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "BOARD_ROOMS",
-        "class_name": "BoardRoom",
-      },
-      {
-        "name": "RATE_LIMITER",
-        "class_name": "RateLimiter",
-      },
-      {
-        "name": "SOCKET_TICKETS",
-        "class_name": "SocketTicketBroker",
-      },
-      {
-        "name": "BOARD_DELETIONS",
-        "class_name": "BoardDeletionCoordinator",
-      },
-      {
-        "name": "COLLAB_SPACE",
-        "class_name": "CollabSpace",
-      },
-    ],
-  },
-  "migrations": [
-    {
-      "tag": "v1",
-      "new_sqlite_classes": ["BoardRoom"],
-    },
-    {
-      "tag": "v2",
-      "new_sqlite_classes": ["RateLimiter"],
-    },
-    {
-      "tag": "v3",
-      "new_sqlite_classes": ["SocketTicketBroker"],
-    },
-    {
-      "tag": "v4",
-      "new_sqlite_classes": ["BoardDeletionCoordinator"],
-    },
-    {
-      "tag": "v5",
-      "new_sqlite_classes": ["CollabSpace"],
-    },
-  ],
-  "r2_buckets": [
-    {
-      "binding": "BOARD_ASSETS",
-      "bucket_name": "collab-canvas-assets",
-      "preview_bucket_name": "collab-canvas-assets-preview",
-    },
-  ],
-  "observability": {
-    "enabled": true,
-  },
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "collab-canvas-sync",
+	"main": "src/worker.ts",
+	"compatibility_date": "2026-07-31",
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "BOARD_ROOMS",
+				"class_name": "BoardRoom",
+			},
+			{
+				"name": "RATE_LIMITER",
+				"class_name": "RateLimiter",
+			},
+			{
+				"name": "SOCKET_TICKETS",
+				"class_name": "SocketTicketBroker",
+			},
+			{
+				"name": "BOARD_DELETIONS",
+				"class_name": "BoardDeletionCoordinator",
+			},
+			{
+				"name": "COLLAB_SPACE",
+				"class_name": "CollabSpace",
+			},
+		],
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"BoardRoom"
+			],
+		},
+		{
+			"tag": "v2",
+			"new_sqlite_classes": [
+				"RateLimiter"
+			],
+		},
+		{
+			"tag": "v3",
+			"new_sqlite_classes": [
+				"SocketTicketBroker"
+			],
+		},
+		{
+			"tag": "v4",
+			"new_sqlite_classes": [
+				"BoardDeletionCoordinator"
+			],
+		},
+		{
+			"tag": "v5",
+			"new_sqlite_classes": [
+				"CollabSpace"
+			],
+		},
+	],
+	"r2_buckets": [
+		{
+			"binding": "BOARD_ASSETS",
+			"bucket_name": "collab-canvas-assets",
+			"preview_bucket_name": "collab-canvas-assets-preview",
+		},
+		{
+			"bucket_name": "collab-canvas-assets",
+			"binding": "y",
+			"remote": true
+		},
+	],
+	"observability": {
+		"enabled": true,
+	},
 }

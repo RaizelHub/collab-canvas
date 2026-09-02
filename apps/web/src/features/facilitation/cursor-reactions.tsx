@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState, type ComponentType } from "react";
-import { Flame, Heart, Lightbulb, PartyPopper, Rocket, ThumbsUp } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Editor } from "tldraw";
 
-type ReactionKind = "heart" | "celebrate" | "fire" | "thumbs" | "bulb" | "rocket";
+import {
+  REACTION_CONFIG,
+  type ReactionKind,
+} from "./reaction-constants";
 
 interface Reaction {
   id: string;
@@ -13,30 +15,19 @@ interface Reaction {
 
 interface CursorReactionsProps {
   editor?: Editor | null;
+  hideToolbar?: boolean;
 }
 
-const REACTION_CONFIG: Record<
-  ReactionKind,
-  { icon: ComponentType<{ className?: string }>; label: string; color: string; bg: string }
-> = {
-  heart: { icon: Heart, label: "Heart", color: "text-pink-500", bg: "bg-pink-500/15 border-pink-500/30" },
-  celebrate: { icon: PartyPopper, label: "Celebrate", color: "text-amber-500", bg: "bg-amber-500/15 border-amber-500/30" },
-  fire: { icon: Flame, label: "Fire", color: "text-orange-500", bg: "bg-orange-500/15 border-orange-500/30" },
-  thumbs: { icon: ThumbsUp, label: "Thumbs Up", color: "text-blue-500", bg: "bg-blue-500/15 border-blue-500/30" },
-  bulb: { icon: Lightbulb, label: "Idea", color: "text-yellow-500", bg: "bg-yellow-500/15 border-yellow-500/30" },
-  rocket: { icon: Rocket, label: "Launch", color: "text-emerald-500", bg: "bg-emerald-500/15 border-emerald-500/30" },
-};
-
-export function CursorReactions({ editor }: CursorReactionsProps) {
+export function CursorReactions({ editor, hideToolbar = false }: CursorReactionsProps) {
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [isLaserActive, setIsLaserActive] = useState(false);
   const reactionCounterRef = useRef(0);
 
-  const triggerReaction = (kind: ReactionKind) => {
-    let x = window.innerWidth / 2;
-    let y = window.innerHeight / 2;
+  const triggerReaction = useCallback((kind: ReactionKind, point?: { x: number; y: number }) => {
+    let x = point?.x ?? window.innerWidth / 2;
+    let y = point?.y ?? window.innerHeight / 2;
 
-    if (editor) {
+    if (!point && editor) {
       const screenBounds = editor.getViewportScreenBounds();
       const pointer = editor.inputs.currentScreenPoint;
       if (pointer.x > 0 && pointer.y > 0) {
@@ -66,7 +57,18 @@ export function CursorReactions({ editor }: CursorReactionsProps) {
     setTimeout(() => {
       setReactions((prev) => prev.filter((r) => r.id !== id));
     }, 2000);
-  };
+  }, [editor]);
+
+  useEffect(() => {
+    const handleEvent = (event: Event) => {
+      const custom = event as CustomEvent<{ kind: ReactionKind; point?: { x: number; y: number } }>;
+      if (custom.detail?.kind) {
+        triggerReaction(custom.detail.kind, custom.detail.point);
+      }
+    };
+    window.addEventListener("collab-canvas-reaction", handleEvent);
+    return () => window.removeEventListener("collab-canvas-reaction", handleEvent);
+  }, [triggerReaction]);
 
   const toggleLaserPointer = () => {
     if (!editor) return;
@@ -118,42 +120,44 @@ export function CursorReactions({ editor }: CursorReactionsProps) {
       </div>
 
       {/* Facilitator Quick Reaction Bar */}
-      <div className="fixed bottom-14 left-1/2 z-30 -translate-x-1/2 rounded-full border border-line bg-panel/95 px-2 py-1 shadow-xl backdrop-blur-md transition-all sm:bottom-6">
-        <div className="flex items-center gap-1">
-          {(Object.keys(REACTION_CONFIG) as ReactionKind[]).map((kind) => {
-            const { icon: Icon, label, color } = REACTION_CONFIG[kind];
-            return (
-              <button
-                aria-label={`Send ${label} reaction`}
-                className="grid size-8 place-items-center rounded-full transition-transform hover:scale-125 hover:bg-hover active:scale-95"
-                key={kind}
-                onClick={() => triggerReaction(kind)}
-                type="button"
-              >
-                <Icon className={`size-4 ${color}`} />
-              </button>
-            );
-          })}
+      {!hideToolbar && (
+        <div className="fixed bottom-14 left-1/2 z-30 -translate-x-1/2 rounded-full border border-line bg-panel/95 px-2 py-1 shadow-xl backdrop-blur-md transition-all sm:bottom-6">
+          <div className="flex items-center gap-1">
+            {(Object.keys(REACTION_CONFIG) as ReactionKind[]).map((kind) => {
+              const { icon: Icon, label, color } = REACTION_CONFIG[kind];
+              return (
+                <button
+                  aria-label={`Send ${label} reaction`}
+                  className="grid size-8 place-items-center rounded-full transition-transform hover:scale-125 hover:bg-hover active:scale-95"
+                  key={kind}
+                  onClick={() => triggerReaction(kind)}
+                  type="button"
+                >
+                  <Icon className={`size-4 ${color}`} />
+                </button>
+              );
+            })}
 
-          <div className="mx-1 h-4 w-px bg-line" />
+            <div className="mx-1 h-4 w-px bg-line" />
 
-          {/* Laser pointer button */}
-          <button
-            aria-label={isLaserActive ? "Disable Laser Pointer" : "Enable Laser Pointer"}
-            className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-xs font-medium transition-colors ${
-              isLaserActive
-                ? "bg-danger text-white ring-2 ring-danger/40"
-                : "border border-line bg-canvas text-muted hover:bg-hover hover:text-ink"
-            }`}
-            onClick={toggleLaserPointer}
-            title="Laser pointer for presentations"
-            type="button"
-          >
-            <span className="size-2 rounded-full bg-danger animate-pulse" />
-            <span>Laser</span>
-          </button>
+            {/* Laser pointer button */}
+            <button
+              aria-label={isLaserActive ? "Disable Laser Pointer" : "Enable Laser Pointer"}
+              className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-xs font-medium transition-colors ${
+                isLaserActive
+                  ? "bg-danger text-white ring-2 ring-danger/40"
+                  : "border border-line bg-canvas text-muted hover:bg-hover hover:text-ink"
+              }`}
+              onClick={toggleLaserPointer}
+              title="Laser pointer for presentations"
+              type="button"
+            >
+              <span className="size-2 rounded-full bg-danger animate-pulse" />
+              <span>Laser</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
