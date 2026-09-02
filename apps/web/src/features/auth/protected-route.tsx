@@ -6,6 +6,14 @@ export function ProtectedRoute() {
   const { configured, loading, user } = useAuth();
   const location = useLocation();
 
+  const isDemoRoute =
+    location.pathname.includes("demo-sandbox-showcase") ||
+    location.search.includes("demo=true");
+
+  if (isDemoRoute) {
+    return <Outlet />;
+  }
+
   if (!configured) {
     return (
       <main className="grid min-h-screen place-items-center bg-canvas p-6 text-ink">

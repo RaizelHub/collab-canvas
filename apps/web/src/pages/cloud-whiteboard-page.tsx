@@ -1,12 +1,12 @@
 import {
   ArrowLeft,
   Check,
-  Compass,
+  Columns,
   Copy,
+  Cpu,
   Ellipsis,
   EyeOff,
   FileDown,
-  Grid2X2,
   HelpCircle,
   LayoutGrid,
   LoaderCircle,
@@ -16,7 +16,7 @@ import {
   Share2,
   Sparkles,
   Sun,
-  Timer,
+  Vote,
   X,
 } from "lucide-react";
 import {
@@ -51,11 +51,14 @@ import {
   type PresenceParticipant,
 } from "../features/collaboration/presence";
 import { CursorReactions } from "../features/facilitation/cursor-reactions";
+import { DotVoting } from "../features/facilitation/dot-voting";
 import { MeetingTimer } from "../features/facilitation/meeting-timer";
 import { BOARD_TEMPLATES } from "../features/templates/templates";
 import { TemplatePickerDialog } from "../features/templates/template-picker-dialog";
+import { ArchitectureInspector } from "../features/whiteboard/architecture-inspector";
 import { CanvasBackgroundSwitch } from "../features/whiteboard/canvas-background-switch";
 import { MiniMap } from "../features/whiteboard/mini-map";
+import { NetworkHud } from "../features/whiteboard/network-hud";
 import { tidySelectedShapes, sortSelectedNotesByColor } from "../features/whiteboard/tidy-notes";
 import { WhiteboardCanvas } from "../features/whiteboard/whiteboard-canvas";
 import { getBoardPersistenceKey } from "../features/whiteboard/persistence-key";
@@ -107,6 +110,7 @@ export function CloudWhiteboardPage() {
   const [exporting, setExporting] = useState<"html" | "png" | "pdf" | null>(
     null,
   );
+  const [editor, setEditor] = useState<Editor | null>(null);
   const editorRef = useRef<Editor | null>(null);
   const appliedTemplateRef = useRef(false);
   const collaborationListenerRef = useRef<(() => void) | null>(null);
@@ -117,6 +121,8 @@ export function CloudWhiteboardPage() {
   const [followingParticipant, setFollowingParticipant] = useState<PresenceParticipant | null>(null);
   const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isArchInspectorOpen, setIsArchInspectorOpen] = useState(false);
+  const [isVotingOpen, setIsVotingOpen] = useState(false);
   const [snapshots, setSnapshots] = useState<
     z.infer<typeof snapshotRowsSchema>
   >([]);
@@ -125,6 +131,18 @@ export function CloudWhiteboardPage() {
     { kind: "clear" } | { kind: "restore"; snapshotId: string } | null
   >(null);
   const isCancellingTitleRef = useRef(false);
+
+  const openSplitWindow = () => {
+    const width = 820;
+    const height = 750;
+    const left = window.screenX + 100;
+    const top = window.screenY + 50;
+    window.open(
+      window.location.href,
+      "_blank",
+      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`,
+    );
+  };
 
   const toggleFollowUser = (participant: PresenceParticipant) => {
     const editor = editorRef.current;
@@ -441,7 +459,7 @@ export function CloudWhiteboardPage() {
       >
         Skip to canvas
       </a>
-      <header className="z-10 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-panel px-3 sm:gap-3 sm:px-4">
+      <header className="z-50 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-panel px-3 sm:gap-3 sm:px-4">
         <Link
           aria-label="Back to dashboard"
           className="grid size-8 place-items-center text-muted hover:bg-hover"
@@ -485,11 +503,35 @@ export function CloudWhiteboardPage() {
             {syncStatus}
           </span>
 
+          {/* Architecture Inspector Trigger */}
+          <button
+            aria-label="System Architecture Inspector"
+            className="flex h-8 items-center gap-1.5 rounded border border-line bg-panel px-2.5 text-xs font-medium text-muted hover:border-accent hover:bg-hover hover:text-ink focus-visible:ring-2 focus-visible:ring-accent transition"
+            onClick={() => setIsArchInspectorOpen(true)}
+            title="System Architecture Inspector"
+            type="button"
+          >
+            <Cpu className="size-3.5 text-accent" />
+            <span className="hidden md:inline">Architecture</span>
+          </button>
+
+          {/* Dot Voting Trigger */}
+          <button
+            aria-label="Agile Dot Voting"
+            className="flex h-8 items-center gap-1.5 rounded border border-line bg-panel px-2.5 text-xs font-medium text-muted hover:border-accent hover:bg-hover hover:text-ink focus-visible:ring-2 focus-visible:ring-accent transition"
+            onClick={() => setIsVotingOpen(true)}
+            title="Dot Voting"
+            type="button"
+          >
+            <Vote className="size-3.5 text-amber-500" />
+            <span className="hidden md:inline">Voting</span>
+          </button>
+
           {/* Meeting Timer */}
           <MeetingTimer />
 
           {/* Canvas Background / Grid */}
-          <CanvasBackgroundSwitch editor={editorRef.current} />
+          <CanvasBackgroundSwitch editor={editor} />
 
           {/* Templates Picker Button */}
           <button
@@ -530,13 +572,13 @@ export function CloudWhiteboardPage() {
             </button>
           )}
           <details className="relative">
-            <summary className="flex h-8 cursor-pointer list-none items-center gap-2 border border-line px-3 text-xs font-medium">
+            <summary className="flex h-8 cursor-pointer list-none items-center gap-2 rounded-xl border border-line px-3 text-xs font-medium hover:bg-hover">
               <FileDown className="size-3.5" />
               Export
             </summary>
-            <div className="absolute right-0 top-10 z-20 w-44 border border-line bg-panel p-1 shadow-lg">
+            <div className="absolute right-0 top-12 z-[100] w-52 rounded-2xl border-2 border-line bg-panel p-2 shadow-2xl neo-box-shadow animate-in fade-in duration-150">
               <button
-                className="h-9 w-full px-3 text-left text-sm hover:bg-hover"
+                className="h-9 w-full rounded-xl px-3 text-left text-sm font-medium hover:bg-hover transition"
                 disabled={exporting !== null}
                 onClick={() => void exportBoard("png")}
                 type="button"
@@ -544,7 +586,7 @@ export function CloudWhiteboardPage() {
                 {exporting === "png" ? "Exporting PNG…" : "Export visual PNG"}
               </button>
               <button
-                className="h-9 w-full px-3 text-left text-sm hover:bg-hover"
+                className="h-9 w-full rounded-xl px-3 text-left text-sm font-medium hover:bg-hover transition"
                 disabled={exporting !== null}
                 onClick={() => void exportBoard("pdf")}
                 type="button"
@@ -552,7 +594,7 @@ export function CloudWhiteboardPage() {
                 {exporting === "pdf" ? "Exporting PDF…" : "Export visual PDF"}
               </button>
               <button
-                className="h-9 w-full px-3 text-left text-sm hover:bg-hover"
+                className="h-9 w-full rounded-xl px-3 text-left text-sm font-medium hover:bg-hover transition"
                 disabled={exporting !== null}
                 onClick={exportAccessibleBoard}
                 type="button"
@@ -567,7 +609,7 @@ export function CloudWhiteboardPage() {
           {/* Shortcuts Help */}
           <button
             aria-label="Keyboard Shortcuts (?)"
-            className="grid size-8 place-items-center rounded text-muted hover:bg-hover hover:text-ink"
+            className="grid size-8 place-items-center rounded-xl text-muted hover:bg-hover hover:text-ink transition"
             onClick={() => setIsShortcutsOpen(true)}
             title="Keyboard Shortcuts (?)"
             type="button"
@@ -578,21 +620,34 @@ export function CloudWhiteboardPage() {
           <details className="relative">
             <summary
               aria-label="Board menu"
-              className="grid size-8 cursor-pointer list-none place-items-center text-muted hover:bg-hover"
+              className="grid size-8 cursor-pointer list-none place-items-center rounded-xl text-muted hover:bg-hover transition"
             >
               <Ellipsis className="size-4" />
             </summary>
-            <div className="absolute right-0 top-10 z-20 w-72 border border-line bg-panel p-3 text-xs shadow-lg">
-              <p className="font-medium">Board ID</p>
-              <p className="mt-1 break-all font-mono text-muted">{board.id}</p>
+            <div className="absolute right-0 top-12 z-[100] w-72 rounded-2xl border-2 border-line bg-panel p-4 text-xs shadow-2xl neo-box-shadow animate-in fade-in duration-150">
+              <p className="font-bold text-ink">Board ID</p>
+              <p className="mt-1 break-all font-mono text-[11px] text-muted">{board.id}</p>
+
+              {/* 2-Window Test mode */}
+              <div className="mt-3 border-t border-line pt-3">
+                <p className="font-bold text-ink">Collaboration Demo</p>
+                <button
+                  className="mt-1.5 flex h-8 w-full items-center justify-center gap-1.5 rounded-xl border border-line bg-canvas px-2 text-[11px] font-semibold text-muted hover:border-accent hover:bg-hover hover:text-ink transition"
+                  onClick={openSplitWindow}
+                  type="button"
+                >
+                  <Columns className="size-3 text-accent" />
+                  Launch 2nd Window (Test Multi-User)
+                </button>
+              </div>
 
               {/* Tidy Shapes actions */}
               <div className="mt-3 border-t border-line pt-3">
-                <p className="font-medium">Layout & Tidy</p>
+                <p className="font-bold text-ink">Layout & Tidy</p>
                 <div className="mt-1.5 flex gap-2">
                   <button
-                    className="flex h-7 items-center gap-1 rounded border border-line bg-canvas px-2 text-[11px] font-medium text-muted hover:bg-hover hover:text-ink"
-                    onClick={() => editorRef.current && tidySelectedShapes(editorRef.current)}
+                    className="flex h-8 items-center gap-1 rounded-xl border border-line bg-canvas px-2.5 text-[11px] font-semibold text-muted hover:border-accent hover:bg-hover hover:text-ink transition"
+                    onClick={() => editor && tidySelectedShapes(editor)}
                     type="button"
                   >
                     <LayoutGrid className="size-3" />
@@ -600,7 +655,7 @@ export function CloudWhiteboardPage() {
                   </button>
                   <button
                     className="flex h-7 items-center gap-1 rounded border border-line bg-canvas px-2 text-[11px] font-medium text-muted hover:bg-hover hover:text-ink"
-                    onClick={() => editorRef.current && sortSelectedNotesByColor(editorRef.current)}
+                    onClick={() => editor && sortSelectedNotesByColor(editor)}
                     type="button"
                   >
                     Sort by Color
@@ -711,8 +766,9 @@ export function CloudWhiteboardPage() {
         <WhiteboardCanvas
           boardId={board.id}
           onConnectionStatus={setConnectionStatus}
-          onMount={(editor) => {
-            editorRef.current = editor;
+          onMount={(mountedEditor) => {
+            editorRef.current = mountedEditor;
+            setEditor(mountedEditor);
 
             // Apply template if navigated from "New from Template"
             const templateId = (location.state as { templateId?: string } | null)?.templateId;
@@ -721,9 +777,9 @@ export function CloudWhiteboardPage() {
               const template = BOARD_TEMPLATES.find((t) => t.id === templateId);
               if (template) {
                 setTimeout(() => {
-                  if (editor.getCurrentPageShapes().length === 0) {
-                    template.apply(editor, 100, 100);
-                    editor.zoomToFit({ animation: { duration: 300 } });
+                  if (mountedEditor.getCurrentPageShapes().length === 0) {
+                    template.apply(mountedEditor, 100, 100);
+                    mountedEditor.zoomToFit({ animation: { duration: 300 } });
                   }
                 }, 200);
               }
@@ -739,7 +795,7 @@ export function CloudWhiteboardPage() {
                     user?.email?.split("@")[0] ??
                     "You",
                 },
-                editor.getCollaborators(),
+                mountedEditor.getCollaborators(),
               );
               const previousParticipants = presenceSnapshotRef.current;
               if (
@@ -772,7 +828,7 @@ export function CloudWhiteboardPage() {
             };
             updateParticipants();
             collaborationListenerRef.current?.();
-            collaborationListenerRef.current = editor.store.listen(
+            collaborationListenerRef.current = mountedEditor.store.listen(
               updateParticipants,
               { scope: "all" },
             );
@@ -780,10 +836,17 @@ export function CloudWhiteboardPage() {
           persistenceKey={getBoardPersistenceKey(board.id)}
         />
         {/* Live Cursor Reactions & Laser Pointer */}
-        <CursorReactions editor={editorRef.current} />
+        <CursorReactions editor={editor} />
 
         {/* Canvas Mini-Map Navigator */}
-        <MiniMap editor={editorRef.current} />
+        <MiniMap editor={editor} />
+
+        {/* Real-time Network & Distributed Systems HUD */}
+        <NetworkHud
+          connectionStatus={connectionStatus}
+          editor={editor}
+          isCloud={true}
+        />
       </div>
       {shareOpen && (
         <ShareBoardDialog
@@ -793,13 +856,22 @@ export function CloudWhiteboardPage() {
         />
       )}
       <TemplatePickerDialog
-        editor={editorRef.current}
+        editor={editor}
         isOpen={isTemplatePickerOpen}
         onClose={() => setIsTemplatePickerOpen(false)}
       />
       <KeyboardShortcutsDialog
         isOpen={isShortcutsOpen}
         onClose={() => setIsShortcutsOpen(false)}
+      />
+      <ArchitectureInspector
+        isOpen={isArchInspectorOpen}
+        onClose={() => setIsArchInspectorOpen(false)}
+      />
+      <DotVoting
+        editor={editor}
+        isOpen={isVotingOpen}
+        onClose={() => setIsVotingOpen(false)}
       />
       {confirmation && (
         <ConfirmBoardActionDialog

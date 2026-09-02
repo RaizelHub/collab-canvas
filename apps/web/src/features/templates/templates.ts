@@ -18,7 +18,7 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
     category: "agile",
     description:
       "3-column retro board with What Went Well, What Could Improve, and Action Items.",
-    icon: "🔄",
+    icon: "rotate-ccw",
     badge: "Agile / Scrum",
     apply: (editor: Editor, originX = 100, originY = 100) => {
       const colWidth = 320;
@@ -32,19 +32,19 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
         notes: string[];
       }[] = [
         {
-          title: "🟢 What Went Well",
+          title: "What Went Well",
           color: "green",
           noteColor: "light-green",
           notes: ["Team velocity improved", "Great code reviews", "Shipped on schedule"],
         },
         {
-          title: "🔴 What Could Be Better",
+          title: "What Could Be Better",
           color: "red",
           noteColor: "light-red",
           notes: ["Flaky CI integration test", "Spec changed mid-sprint"],
         },
         {
-          title: "🔵 Action Items",
+          title: "Action Items",
           color: "blue",
           noteColor: "light-blue",
           notes: ["Automate release checks", "Schedule API sync before kickoff"],
@@ -114,7 +114,7 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
     category: "planning",
     description:
       "4-stage workflow board with Backlog, In Progress, In Review, and Done columns.",
-    icon: "📋",
+    icon: "kanban",
     badge: "Productivity",
     apply: (editor: Editor, originX = 100, originY = 100) => {
       const colWidth = 280;
@@ -127,22 +127,22 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
         notes: string[];
       }[] = [
         {
-          title: "📌 Backlog",
+          title: "Backlog",
           color: "grey",
           notes: ["Audit WCAG compliance", "Design mobile navigation"],
         },
         {
-          title: "⚡ In Progress",
+          title: "In Progress",
           color: "yellow",
           notes: ["Implement real-time timer", "Follow-me presenter mode"],
         },
         {
-          title: "🔍 In Review",
+          title: "In Review",
           color: "orange",
           notes: ["CORS worker configuration", "Mini-map navigator"],
         },
         {
-          title: "✅ Done",
+          title: "Done",
           color: "green",
           notes: ["tldraw sync engine", "Supabase authentication"],
         },
@@ -208,7 +208,7 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
     category: "planning",
     description:
       "2x2 prioritization grid (Quick Wins, Major Projects, Fill-ins, Thankless Tasks).",
-    icon: "🎯",
+    icon: "target",
     badge: "Prioritization",
     apply: (editor: Editor, originX = 100, originY = 100) => {
       const size = 560;
@@ -222,28 +222,28 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
         sample: string;
       }[] = [
         {
-          label: "🚀 Quick Wins (High Impact / Low Effort)",
+          label: "Quick Wins (High Impact / Low Effort)",
           x: originX,
           y: originY,
           color: "green",
           sample: "Add copy link button",
         },
         {
-          label: "⭐ Major Projects (High Impact / High Effort)",
+          label: "Major Projects (High Impact / High Effort)",
           x: originX + half,
           y: originY,
           color: "blue",
           sample: "Realtime audio mesh",
         },
         {
-          label: "☕ Fill-ins (Low Impact / Low Effort)",
+          label: "Fill-ins (Low Impact / Low Effort)",
           x: originX,
           y: originY + half,
           color: "yellow",
           sample: "Update brand favicon",
         },
         {
-          label: "⏳ Reconsider (Low Impact / High Effort)",
+          label: "Reconsider (Low Impact / High Effort)",
           x: originX + half,
           y: originY + half,
           color: "red",
@@ -306,7 +306,7 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
     category: "engineering",
     description:
       "Cloud system blueprint with Client, API Gateway, Worker/Services, and Database.",
-    icon: "🏗️",
+    icon: "cpu",
     badge: "Architecture",
     apply: (editor: Editor, originX = 100, originY = 100) => {
       const shapes: Parameters<Editor["createShapes"]>[0] = [];
@@ -363,7 +363,7 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
     category: "brainstorming",
     description:
       "Central topic hub branching into sub-topics with color-coded idea nodes.",
-    icon: "🧠",
+    icon: "lightbulb",
     badge: "Ideation",
     apply: (editor: Editor, originX = 200, originY = 150) => {
       const shapes: Parameters<Editor["createShapes"]>[0] = [];

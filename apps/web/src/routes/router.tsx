@@ -1,14 +1,18 @@
-import { Navigate, createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router";
 
 import { ProtectedRoute } from "../features/auth/protected-route";
 import { AppShell } from "../layouts/app-shell";
 import { AuthLayout } from "../layouts/auth-layout";
 import {
+  CollabSpacePage,
   DashboardPage,
+  DemoPage,
   ForgotPasswordPage,
   InvitationPage,
+  LandingPage,
   LoginPage,
   NotFoundPage,
+  PortfolioPage,
   ProfilePage,
   RegisterPage,
   ResetPasswordPage,
@@ -24,7 +28,19 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Navigate replace to="/dashboard" />,
+        element: <LandingPage />,
+      },
+      {
+        path: "/portfolio",
+        element: <PortfolioPage />,
+      },
+      {
+        path: "/collab",
+        element: <CollabSpacePage />,
+      },
+      {
+        path: "/demo",
+        element: <DemoPage />,
       },
       {
         element: <AuthLayout />,

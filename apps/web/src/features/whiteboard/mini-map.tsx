@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Compass, MapPin, Maximize2, Minimize2 } from "lucide-react";
+import { Compass, MapPin } from "lucide-react";
 import type { Editor } from "tldraw";
 
 interface MiniMapProps {

@@ -1,5 +1,8 @@
 import { lazy } from "react";
 
+export const LandingPage = lazy(async () => ({
+  default: (await import("../pages/landing-page")).LandingPage,
+}));
 export const DashboardPage = lazy(async () => ({
   default: (await import("../pages/dashboard-page")).DashboardPage,
 }));
@@ -33,4 +36,12 @@ export const ShareLinkPage = lazy(async () => ({
 export const WhiteboardPage = lazy(async () => ({
   default: (await import("../pages/whiteboard-page")).WhiteboardPage,
 }));
-
+export const PortfolioPage = lazy(async () => ({
+  default: (await import("../pages/portfolio-page")).PortfolioPage,
+}));
+export const CollabSpacePage = lazy(async () => ({
+  default: (await import("../pages/collab-space-page")).CollabSpacePage,
+}));
+export const DemoPage = lazy(async () => ({
+  default: (await import("../pages/demo-page")).DemoPage,
+}));

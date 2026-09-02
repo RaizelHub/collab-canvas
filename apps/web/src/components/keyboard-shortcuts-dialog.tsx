@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Command, Keyboard, Search, X } from "lucide-react";
+import { useState } from "react";
+import { Keyboard, Search, X } from "lucide-react";
 
 import { AccessibleDialog } from "./accessible-dialog";
 

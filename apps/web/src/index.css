@@ -2,21 +2,21 @@
 
 @theme {
   --breakpoint-xs: 28rem;
-  --color-accent: #49655a;
-  --color-accent-strong: #3b554b;
-  --color-accent-soft: #dfe8e3;
+  --color-accent: #2563eb;
+  --color-accent-strong: #1d4ed8;
+  --color-accent-soft: #dbeafe;
   --color-avatar: #e4e0d7;
   --color-avatar-ink: #514b40;
-  --color-canvas: #f7f7f5;
-  --color-danger: #a33e3e;
-  --color-danger-soft: #f8eaea;
-  --color-danger-strong: #873333;
-  --color-hover: #f0f0ed;
-  --color-ink: #20231f;
-  --color-line: #dedfd9;
-  --color-line-strong: #c5c8c1;
-  --color-control-line: #858b82;
-  --color-muted: #696e67;
+  --color-canvas: #f8fafc;
+  --color-danger: #e11d48;
+  --color-danger-soft: #ffe4e6;
+  --color-danger-strong: #be123c;
+  --color-hover: #f1f5f9;
+  --color-ink: #0f172a;
+  --color-line: #cbd5e1;
+  --color-line-strong: #94a3b8;
+  --color-control-line: #64748b;
+  --color-muted: #64748b;
   --color-panel: #ffffff;
   --font-sans:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
@@ -32,22 +32,22 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-accent: #77998b;
-  --color-accent-strong: #89aa9d;
-  --color-accent-soft: #2f413a;
-  --color-avatar: #3a3b36;
-  --color-avatar-ink: #e7e5dc;
-  --color-canvas: #191b19;
-  --color-danger: #e48a8a;
-  --color-danger-soft: #3b2626;
-  --color-danger-strong: #f09a9a;
-  --color-hover: #292c29;
-  --color-ink: #edeee9;
-  --color-line: #363a36;
-  --color-line-strong: #4a504a;
-  --color-control-line: #747c74;
-  --color-muted: #a6aaa3;
-  --color-panel: #202320;
+  --color-accent: #38bdf8;
+  --color-accent-strong: #0284c7;
+  --color-accent-soft: #082f49;
+  --color-avatar: #334155;
+  --color-avatar-ink: #f8fafc;
+  --color-canvas: #090d16;
+  --color-danger: #f43f5e;
+  --color-danger-soft: #4c0519;
+  --color-danger-strong: #fda4af;
+  --color-hover: #1e293b;
+  --color-ink: #f8fafc;
+  --color-line: #1e293b;
+  --color-line-strong: #334155;
+  --color-control-line: #64748b;
+  --color-muted: #94a3b8;
+  --color-panel: #0f172a;
 }
 
 * {
@@ -64,7 +64,7 @@ button,
 input,
 select,
 textarea {
-  border-radius: 6px;
+  border-radius: 12px;
 }
 
 button:focus-visible,
@@ -114,3 +114,54 @@ summary:focus-visible,
   animation: float-reaction 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 24s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.neo-box-shadow {
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.9);
+}
+
+[data-theme="dark"] .neo-box-shadow {
+  box-shadow: 4px 4px 0px 0px rgba(56, 189, 248, 0.4);
+}
+
+.maximalist-gradient-text {
+  background: linear-gradient(135deg, #00f0ff 0%, #ec4899 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Tldraw Style Panel: modern rounded radius, borders, and offset */
+.tlui-style-panel__wrapper {
+  margin-top: 14px !important;
+  margin-right: 14px !important;
+  border-radius: 16px !important;
+  border: 2px solid var(--color-line) !important;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="dark"] .tlui-style-panel__wrapper {
+  border: 2px solid var(--color-line-strong) !important;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Ensure tldraw container stays below the application header (z-50) */
+.tl-container {
+  z-index: 10 !important;
+}

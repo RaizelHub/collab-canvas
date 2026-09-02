@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Search, Sparkles, X } from "lucide-react";
+import {
+  Cpu,
+  Kanban,
+  Lightbulb,
+  RotateCcw,
+  Search,
+  Sparkles,
+  Target,
+  X,
+} from "lucide-react";
 import type { Editor } from "tldraw";
 
 import { AccessibleDialog } from "../../components/accessible-dialog";
@@ -10,6 +19,23 @@ interface TemplatePickerDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectTemplate?: (template: BoardTemplate) => void;
+}
+
+function TemplateIcon({ id }: { id: string }) {
+  switch (id) {
+    case "sprint-retro":
+      return <RotateCcw className="size-5 text-accent" />;
+    case "kanban-workflow":
+      return <Kanban className="size-5 text-amber-500" />;
+    case "impact-effort-matrix":
+      return <Target className="size-5 text-emerald-500" />;
+    case "architecture-starter":
+      return <Cpu className="size-5 text-purple-500" />;
+    case "mind-map":
+      return <Lightbulb className="size-5 text-cyan-500" />;
+    default:
+      return <Sparkles className="size-5 text-accent" />;
+  }
 }
 
 export function TemplatePickerDialog({
@@ -126,9 +152,9 @@ export function TemplatePickerDialog({
             >
               <div>
                 <div className="flex items-start justify-between">
-                  <span className="text-2xl" role="img" aria-label={template.name}>
-                    {template.icon}
-                  </span>
+                  <div className="grid size-9 place-items-center rounded-lg border border-line bg-panel">
+                    <TemplateIcon id={template.id} />
+                  </div>
                   <span className="rounded-full bg-line/60 px-2 py-0.5 text-[10px] font-medium text-muted">
                     {template.badge}
                   </span>

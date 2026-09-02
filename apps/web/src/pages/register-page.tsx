@@ -1,3 +1,4 @@
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
 
@@ -38,6 +39,23 @@ export function RegisterPage() {
 
   return (
     <>
+      <div className="mb-5 rounded-2xl border-2 border-accent/40 bg-accent/5 p-4 neo-box-shadow">
+        <div className="flex items-center gap-2 text-xs font-bold text-accent">
+          <Sparkles className="size-4" />
+          <span>Want to explore without signing up?</span>
+        </div>
+        <p className="mt-1 text-xs text-muted">
+          Jump directly into an interactive collaborative sandbox canvas.
+        </p>
+        <Link
+          className="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 text-xs font-bold text-white transition hover:bg-accent-strong"
+          to="/demo"
+        >
+          <span>Launch Instant Free Sandbox</span>
+          <ArrowRight className="size-3.5" />
+        </Link>
+      </div>
+
       <h1 className="text-xl font-semibold">Create account</h1>
       <p className="mt-1 text-sm text-muted">
         Use your work email and a display name.
@@ -47,7 +65,7 @@ export function RegisterPage() {
           Display name
           <input
             autoComplete="name"
-            className="mt-1.5 h-10 w-full border border-line bg-canvas px-3 font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft"
+            className="mt-1.5 h-10 w-full rounded-xl border border-line bg-canvas px-3 font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft"
             maxLength={80}
             minLength={2}
             onChange={(event) => setDisplayName(event.target.value)}
@@ -59,7 +77,7 @@ export function RegisterPage() {
           Email
           <input
             autoComplete="email"
-            className="mt-1.5 h-10 w-full border border-line bg-canvas px-3 font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft"
+            className="mt-1.5 h-10 w-full rounded-xl border border-line bg-canvas px-3 font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft"
             onChange={(event) => setEmail(event.target.value)}
             required
             type="email"
@@ -70,7 +88,7 @@ export function RegisterPage() {
           Password
           <input
             autoComplete="new-password"
-            className="mt-1.5 h-10 w-full border border-line bg-canvas px-3 font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft"
+            className="mt-1.5 h-10 w-full rounded-xl border border-line bg-canvas px-3 font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft"
             minLength={8}
             onChange={(event) => setPassword(event.target.value)}
             required
@@ -84,7 +102,7 @@ export function RegisterPage() {
           </p>
         )}
         <button
-          className="h-10 w-full bg-accent text-sm font-medium text-white disabled:opacity-60"
+          className="h-10 w-full rounded-xl bg-accent text-sm font-medium text-white disabled:opacity-60 transition"
           disabled={!configured || submitting}
           type="submit"
         >
@@ -93,7 +111,7 @@ export function RegisterPage() {
       </form>
       <p className="mt-5 text-sm text-muted">
         Already registered?{" "}
-        <Link className="text-accent hover:underline" to="/login">
+        <Link className="text-accent hover:underline font-medium" to="/login">
           Sign in
         </Link>
       </p>

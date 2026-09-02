@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { Flame, Heart, Lightbulb, PartyPopper, Rocket, ThumbsUp } from "lucide-react";
 import type { Editor } from "tldraw";
 
+type ReactionKind = "heart" | "celebrate" | "fire" | "thumbs" | "bulb" | "rocket";
+
 interface Reaction {
   id: string;
-  emoji: string;
+  kind: ReactionKind;
   x: number;
   y: number;
 }
@@ -13,20 +15,24 @@ interface CursorReactionsProps {
   editor?: Editor | null;
 }
 
+const REACTION_CONFIG: Record<
+  ReactionKind,
+  { icon: ComponentType<{ className?: string }>; label: string; color: string; bg: string }
+> = {
+  heart: { icon: Heart, label: "Heart", color: "text-pink-500", bg: "bg-pink-500/15 border-pink-500/30" },
+  celebrate: { icon: PartyPopper, label: "Celebrate", color: "text-amber-500", bg: "bg-amber-500/15 border-amber-500/30" },
+  fire: { icon: Flame, label: "Fire", color: "text-orange-500", bg: "bg-orange-500/15 border-orange-500/30" },
+  thumbs: { icon: ThumbsUp, label: "Thumbs Up", color: "text-blue-500", bg: "bg-blue-500/15 border-blue-500/30" },
+  bulb: { icon: Lightbulb, label: "Idea", color: "text-yellow-500", bg: "bg-yellow-500/15 border-yellow-500/30" },
+  rocket: { icon: Rocket, label: "Launch", color: "text-emerald-500", bg: "bg-emerald-500/15 border-emerald-500/30" },
+};
+
 export function CursorReactions({ editor }: CursorReactionsProps) {
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [isLaserActive, setIsLaserActive] = useState(false);
+  const reactionCounterRef = useRef(0);
 
-  const emojiList = [
-    { emoji: "❤️", icon: Heart, label: "Heart" },
-    { emoji: "🎉", icon: PartyPopper, label: "Celebrate" },
-    { emoji: "🔥", icon: Flame, label: "Fire" },
-    { emoji: "👍", icon: ThumbsUp, label: "Thumbs Up" },
-    { emoji: "💡", icon: Lightbulb, label: "Idea" },
-    { emoji: "🚀", icon: Rocket, label: "Launch" },
-  ];
-
-  const triggerReaction = (emoji: string) => {
+  const triggerReaction = (kind: ReactionKind) => {
     let x = window.innerWidth / 2;
     let y = window.innerHeight / 2;
 
@@ -42,12 +48,17 @@ export function CursorReactions({ editor }: CursorReactionsProps) {
       }
     }
 
-    const id = Math.random().toString(36).substring(2, 9);
+    reactionCounterRef.current += 1;
+    const count = reactionCounterRef.current;
+    const id = `reaction-${count}`;
+    const offsetX = (count % 7) * 6 - 18;
+    const offsetY = (count % 5) * 4 - 10;
+
     const newReaction: Reaction = {
       id,
-      emoji,
-      x: x + (Math.random() * 40 - 20),
-      y: y + (Math.random() * 20 - 10),
+      kind,
+      x: x + offsetX,
+      y: y + offsetY,
     };
 
     setReactions((prev) => [...prev, newReaction]);
@@ -82,36 +93,47 @@ export function CursorReactions({ editor }: CursorReactionsProps) {
 
   return (
     <>
-      {/* Floating Emojis Layer */}
+      {/* Floating Reaction Icons Layer */}
       <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
-        {reactions.map((r) => (
-          <div
-            className="animate-reaction absolute text-3xl select-none"
-            key={r.id}
-            style={{
-              left: `${r.x}px`,
-              top: `${r.y}px`,
-            }}
-          >
-            {r.emoji}
-          </div>
-        ))}
+        {reactions.map((r) => {
+          const cfg = REACTION_CONFIG[r.kind];
+          const Icon = cfg.icon;
+          return (
+            <div
+              className="animate-reaction absolute select-none"
+              key={r.id}
+              style={{
+                left: `${r.x}px`,
+                top: `${r.y}px`,
+              }}
+            >
+              <div
+                className={`grid size-10 place-items-center rounded-full border shadow-lg backdrop-blur-md ${cfg.bg}`}
+              >
+                <Icon className={`size-5 ${cfg.color}`} />
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Facilitator Quick Reaction Bar */}
       <div className="fixed bottom-14 left-1/2 z-30 -translate-x-1/2 rounded-full border border-line bg-panel/95 px-2 py-1 shadow-xl backdrop-blur-md transition-all sm:bottom-6">
         <div className="flex items-center gap-1">
-          {emojiList.map(({ emoji, label }) => (
-            <button
-              aria-label={`Send ${label} reaction`}
-              className="grid size-8 place-items-center rounded-full text-base transition-transform hover:scale-125 hover:bg-hover active:scale-95"
-              key={label}
-              onClick={() => triggerReaction(emoji)}
-              type="button"
-            >
-              {emoji}
-            </button>
-          ))}
+          {(Object.keys(REACTION_CONFIG) as ReactionKind[]).map((kind) => {
+            const { icon: Icon, label, color } = REACTION_CONFIG[kind];
+            return (
+              <button
+                aria-label={`Send ${label} reaction`}
+                className="grid size-8 place-items-center rounded-full transition-transform hover:scale-125 hover:bg-hover active:scale-95"
+                key={kind}
+                onClick={() => triggerReaction(kind)}
+                type="button"
+              >
+                <Icon className={`size-4 ${color}`} />
+              </button>
+            );
+          })}
 
           <div className="mx-1 h-4 w-px bg-line" />
 

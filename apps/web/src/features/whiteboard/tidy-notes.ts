@@ -1,4 +1,4 @@
-import type { Editor, TLShapeId } from "tldraw";
+import type { Editor } from "tldraw";
 
 /**
  * Arranges currently selected notes and shapes into a tidy, structured grid.
@@ -57,8 +57,10 @@ export function sortSelectedNotesByColor(editor: Editor) {
   const colorOrder = ["light-green", "green", "light-blue", "blue", "yellow", "orange", "light-red", "red", "grey", "black"];
 
   const sorted = [...selectedShapes].sort((a, b) => {
-    const colorA = (a.props as any)?.color ?? "";
-    const colorB = (b.props as any)?.color ?? "";
+    const propsA = a.props as { color?: string } | undefined;
+    const propsB = b.props as { color?: string } | undefined;
+    const colorA = propsA?.color ?? "";
+    const colorB = propsB?.color ?? "";
     return colorOrder.indexOf(colorA) - colorOrder.indexOf(colorB);
   });
 

@@ -6,7 +6,7 @@ import { useAuth } from "../features/auth/auth-context";
 import { BoardCard } from "../features/boards/board-card";
 import { CreateBoardButton } from "../features/boards/create-board-button";
 import { DeleteBoardDialog } from "../features/boards/delete-board-dialog";
-import { isBoardStarred, toggleStarredBoard } from "../features/boards/favorites";
+import { getStarredBoardIds, isBoardStarred, toggleStarredBoard } from "../features/boards/favorites";
 import { TemplatePickerDialog } from "../features/templates/template-picker-dialog";
 import type { BoardTemplate } from "../features/templates/templates";
 import {
@@ -40,12 +40,14 @@ export function CloudDashboardPage() {
   );
   const [starredOnly, setStarredOnly] = useState(false);
   const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
-  const [starredIdsVersion, setStarredIdsVersion] = useState(0);
   const [boardToDelete, setBoardToDelete] = useState<CloudBoard | null>(null);
+  const [starredIds, setStarredIds] = useState<Set<string>>(
+    () => new Set(getStarredBoardIds()),
+  );
 
   const toggleStar = (board: CloudBoard) => {
     toggleStarredBoard(board.id);
-    setStarredIdsVersion((v) => v + 1);
+    setStarredIds(new Set(getStarredBoardIds()));
   };
 
   const refreshBoards = useCallback(async () => {
@@ -204,7 +206,7 @@ export function CloudDashboardPage() {
         board.title.toLocaleLowerCase().includes(normalizedSearch) &&
         (roleFilter === "all" || board.role === roleFilter) &&
         (routeFilter !== "shared" || !board.canManage) &&
-        (!starredOnly || isBoardStarred(board.id)),
+        (!starredOnly || starredIds.has(board.id)),
     )
     .sort((left, right) => {
       if (sortBy === "title") return left.title.localeCompare(right.title);

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, ChevronDown, ChevronUp, Pause, Play, RotateCcw, Timer } from "lucide-react";
+import { ChevronDown, ChevronUp, Pause, Play, RotateCcw, Timer } from "lucide-react";
 
 interface MeetingTimerProps {
   onTimeUp?: () => void;
@@ -17,7 +17,10 @@ export function MeetingTimer({ onTimeUp }: MeetingTimerProps) {
   // Play synthesized web audio chime when timer hits zero
   const playChime = () => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext?: typeof AudioContext })
+          .webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
       const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6

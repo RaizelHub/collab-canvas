@@ -26,7 +26,7 @@ interface RepositoryOptions {
 
 export interface LocalBoardRepository {
   clearBoards(): RepositoryResult<void>;
-  createBoard(initialTitle?: string): RepositoryResult<LocalBoard>;
+  createBoard(initialTitle?: string, customId?: string): RepositoryResult<LocalBoard>;
   deleteBoard(id: string): RepositoryResult<boolean>;
   getBoardById(id: string): RepositoryResult<LocalBoard | null>;
   getBoards(): RepositoryResult<LocalBoard[]>;
@@ -152,7 +152,10 @@ export function createLocalBoardRepository(
     };
   };
 
-  const createBoard = (initialTitle = "Untitled board"): RepositoryResult<LocalBoard> => {
+  const createBoard = (
+    initialTitle = "Untitled board",
+    customId?: string,
+  ): RepositoryResult<LocalBoard> => {
     const result = getBoards();
     if (!result.ok) {
       return result;
@@ -160,13 +163,16 @@ export function createLocalBoardRepository(
 
     const timestamp = now().toISOString();
     const board: LocalBoard = {
-      id: generateId(),
+      id: customId ?? generateId(),
       title: initialTitle.trim() || "Untitled board",
       createdAt: timestamp,
       updatedAt: timestamp,
       lastOpenedAt: timestamp,
     };
-    const saved = saveBoards([board, ...result.value]);
+    const nextBoards = customId
+      ? [board, ...result.value.filter((b) => b.id !== customId)]
+      : [board, ...result.value];
+    const saved = saveBoards(nextBoards);
 
     return saved.ok ? { ok: true, value: board } : saved;
   };

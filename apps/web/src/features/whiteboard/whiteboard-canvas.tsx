@@ -85,11 +85,13 @@ export function WhiteboardCanvas({
   persistenceKey,
   shareToken,
 }: WhiteboardCanvasProps) {
-  if (!syncServerUrl || !supabase) {
+  const isLocalOrDemo = Boolean(persistenceKey) || boardId === "demo-sandbox-showcase";
+
+  if (isLocalOrDemo || !syncServerUrl || !supabase) {
     return (
       <LocalWhiteboardCanvas
         onMount={onMount}
-        persistenceKey={persistenceKey}
+        persistenceKey={persistenceKey ?? `collab-canvas-board-${boardId}`}
       />
     );
   }

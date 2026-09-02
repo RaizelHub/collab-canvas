@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Grid, Grid2X2, LayoutGrid, Palette } from "lucide-react";
+import { Grid2X2 } from "lucide-react";
 import type { Editor } from "tldraw";
 
 export type GridMode = "dots" | "grid" | "blueprint" | "graph" | "blank";
