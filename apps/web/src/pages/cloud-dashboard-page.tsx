@@ -20,6 +20,18 @@ import {
 import { supabase } from "../lib/supabase";
 import { syncServerUrl } from "../lib/env";
 
+function isDatabasePausedOrWaking(errorMessage: string): boolean {
+  const lower = errorMessage.toLowerCase();
+  return (
+    lower.includes("paused") ||
+    lower.includes("503") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("networkerror") ||
+    lower.includes("connection") ||
+    lower.includes("offline")
+  );
+}
+
 export function CloudDashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -247,17 +259,39 @@ export function CloudDashboardPage() {
 
       {error && (
         <div
-          className="mt-5 border-l-2 border-danger bg-danger-soft px-4 py-3 text-sm"
+          className="mt-5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-ink"
           role="alert"
         >
-          {error}
-          <button
-            className="ml-3 font-medium underline"
-            onClick={() => void refreshBoards()}
-            type="button"
-          >
-            Retry
-          </button>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p className="font-semibold text-amber-600 dark:text-amber-400">
+                {isDatabasePausedOrWaking(error)
+                  ? "Database is connecting or waking up"
+                  : "Unable to load cloud boards"}
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                {isDatabasePausedOrWaking(error)
+                  ? "If the Supabase project was idle, it may take 10–30 seconds to wake. You can retry now or explore the demo canvas."
+                  : error}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                className="rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:opacity-90"
+                onClick={() => void refreshBoards()}
+                type="button"
+              >
+                Retry
+              </button>
+              <button
+                className="rounded-md border border-line bg-panel px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-hover"
+                onClick={() => navigate("/demo")}
+                type="button"
+              >
+                Open Demo Board
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

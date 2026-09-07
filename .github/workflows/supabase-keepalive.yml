@@ -1,0 +1,54 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Runs every 3 days at 00:00 UTC (well within Supabase's 7-day inactivity pause window)
+    - cron: "0 0 */3 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  keepalive:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping Supabase Database
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SYNC_WORKER_URL: ${{ secrets.SYNC_WORKER_URL }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::warning::SUPABASE_URL or SUPABASE_ANON_KEY secret is not set in GitHub repository settings."
+            echo "To enable automated keep-alive pings, add SUPABASE_URL and SUPABASE_ANON_KEY in:"
+            echo "GitHub Repo -> Settings -> Secrets and variables -> Actions"
+            exit 0
+          fi
+
+          echo "Pinging Supabase REST API at $SUPABASE_URL/rest/v1/boards..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${SUPABASE_URL}/rest/v1/boards?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            --connect-timeout 10 \
+            --max-time 30)
+
+          echo "Supabase responded with HTTP $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+            echo "Success: Supabase database is active and the 7-day inactivity timer has been reset."
+          else
+            echo "::error::Supabase ping failed with HTTP status $HTTP_STATUS"
+            exit 1
+          fi
+
+          if [ -n "$SYNC_WORKER_URL" ]; then
+            echo "Pinging Cloudflare Sync Worker at $SYNC_WORKER_URL/health?check=db..."
+            WORKER_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${SYNC_WORKER_URL}/health?check=db" \
+              --connect-timeout 10 \
+              --max-time 30 || true)
+            echo "Worker responded with HTTP $WORKER_STATUS"
+          fi

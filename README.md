@@ -115,8 +115,17 @@ npx wrangler deploy
 ```
 
 `wrangler.jsonc` declares the R2 binding, board and portfolio Durable Objects,
-rate-limiter Durable Object, and SQLite migrations. Do not rename deployed Durable Object
-classes without a migration plan.
+rate-limiter Durable Object, SQLite migrations, and automated keep-alive cron triggers.
+Do not rename deployed Durable Object classes without a migration plan.
+
+## Zero-Downtime Database Maintenance
+
+Supabase Free Plan projects automatically pause after 7 days without traffic, requiring manual reactivation.
+CollabCanvas prevents database auto-pausing and ensures 0 downtime using two redundant layers:
+
+1. **Cloudflare Worker Cron**: When deployed, the Worker automatically runs every 2 days to ping Supabase (`/rest/v1/boards?select=id&limit=1`), resetting the 7-day inactivity timer.
+2. **GitHub Actions Keep-Alive**: The scheduled workflow `.github/workflows/supabase-keepalive.yml` runs every 3 days. To enable it, add `SUPABASE_URL` and `SUPABASE_ANON_KEY` to your GitHub repo secrets (**Settings -> Secrets and variables -> Actions**).
+3. **Health & Uptime Monitoring**: The Worker exposes `/health?check=db`, which can be monitored with free services like UptimeRobot or Cron-job.org to keep edge isolates and database connections active.
 
 ## Development
 

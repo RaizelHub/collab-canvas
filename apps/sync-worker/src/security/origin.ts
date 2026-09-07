@@ -1,14 +1,29 @@
-export function getAllowedOrigins(env: Env): Set<string> {
-  return new Set(
-    env.ALLOWED_ORIGINS.split(",")
-      .map((origin) => origin.trim())
-      .filter(Boolean),
-  );
+export function getAllowedOrigins(env: Env): string[] {
+  return env.ALLOWED_ORIGINS.split(",")
+    .map((origin) => origin.trim().replace(/\/+$/, ""))
+    .filter(Boolean);
 }
 
 export function isAllowedOrigin(request: Request, env: Env): boolean {
-  const origin = request.headers.get("Origin");
-  return origin !== null && getAllowedOrigins(env).has(origin);
+  const rawOrigin = request.headers.get("Origin");
+  if (!rawOrigin) return false;
+  const origin = rawOrigin.trim().replace(/\/+$/, "");
+
+  const allowedOrigins = getAllowedOrigins(env);
+  return allowedOrigins.some((allowed) => {
+    if (allowed === "*" || allowed === origin) return true;
+    if (allowed.includes("*")) {
+      const regexPattern =
+        "^" +
+        allowed
+          .split("*")
+          .map((segment) => segment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+          .join(".*") +
+        "$";
+      return new RegExp(regexPattern).test(origin);
+    }
+    return false;
+  });
 }
 
 export function corsHeaders(request: Request, env: Env): Headers {
@@ -19,7 +34,7 @@ export function corsHeaders(request: Request, env: Env): Headers {
     "Referrer-Policy": "no-referrer",
   });
   const origin = request.headers.get("Origin");
-  if (origin && getAllowedOrigins(env).has(origin)) {
+  if (origin && isAllowedOrigin(request, env)) {
     headers.set("Access-Control-Allow-Origin", origin);
     headers.set(
       "Access-Control-Allow-Headers",

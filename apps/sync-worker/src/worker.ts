@@ -42,6 +42,10 @@ import {
   revokeShareLink,
 } from "./sharing/share-link-handler";
 import { corsHeaders, isAllowedOrigin } from "./security/origin";
+import {
+  executeScheduledKeepAlive,
+  pingSupabaseDatabase,
+} from "./maintenance/database-keepalive";
 import { validateWorkerEnvironment } from "./validation/environment";
 import { boardIdSchema } from "./validation/request";
 import { z } from "zod";
@@ -648,15 +652,59 @@ export default {
       return new Response("Worker configuration is invalid.", { status: 500 });
     }
 
+    const url = new URL(request.url);
+
+    if (url.pathname === "/health") {
+      const origin = request.headers.get("Origin");
+      const healthHeaders = new Headers({
+        "Content-Type": "application/json; charset=utf-8",
+        Vary: "Origin",
+      });
+      healthHeaders.set("Access-Control-Allow-Origin", origin || "*");
+      healthHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+      healthHeaders.set(
+        "Access-Control-Allow-Headers",
+        "Authorization, Content-Type",
+      );
+
+      if (request.method === "OPTIONS") {
+        return new Response(null, {
+          status: 204,
+          headers: healthHeaders,
+        });
+      }
+
+      const checkDb =
+        url.searchParams.get("check") === "db" ||
+        url.searchParams.get("ping_db") === "1";
+
+      if (!checkDb) {
+        return new Response(JSON.stringify({ status: "ok" }), {
+          status: 200,
+          headers: healthHeaders,
+        });
+      }
+
+      const dbResult = await pingSupabaseDatabase(env);
+      return new Response(
+        JSON.stringify({
+          status: dbResult.ok ? "ok" : "degraded",
+          database: dbResult.ok ? "connected" : "error",
+          latencyMs: dbResult.latencyMs,
+          ...(dbResult.error ? { error: dbResult.error } : {}),
+        }),
+        {
+          status: dbResult.ok ? 200 : 503,
+          headers: healthHeaders,
+        },
+      );
+    }
+
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
         headers: corsHeaders(request, env),
       });
-    }
-    const url = new URL(request.url);
-    if (url.pathname === "/health") {
-      return json(request, env, { status: "ok" });
     }
     if (url.pathname.startsWith("/portfolio/")) {
       return (
@@ -706,5 +754,22 @@ export default {
       return handleConnect(request, env);
     }
     return json(request, env, { error: "not_found" }, 404);
+  },
+  async scheduled(
+    _controller: ScheduledController,
+    env: Env,
+    ctx: ExecutionContext,
+  ): Promise<void> {
+    try {
+      validateWorkerEnvironment(env);
+    } catch (error) {
+      console.error(
+        "Scheduled keep-alive skipped: Worker environment is invalid.",
+        error,
+      );
+      return;
+    }
+
+    executeScheduledKeepAlive(env, (promise) => ctx.waitUntil(promise));
   },
 } satisfies ExportedHandler<Env>;

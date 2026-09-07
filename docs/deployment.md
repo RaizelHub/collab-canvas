@@ -34,11 +34,26 @@ limiters), `v3` (single-use socket tickets), `v4` (retrying board cleanup), and
 `v5` (the public portfolio room).
 Optionally set `PORTFOLIO_ADMIN_USER_ID` to the portfolio owner's Supabase user
 ID before deployment to enable private remove/hide controls.
-Verify `/health`, an unauthorized ticket rejection, ticket replay rejection,
-an invalid origin rejection, and an authenticated owner/editor/viewer
-connection.
+Verify `/health`, `/health?check=db` (database connectivity and latency),
+an unauthorized ticket rejection, ticket replay rejection, an invalid origin rejection,
+and an authenticated owner/editor/viewer connection.
 
-## 3. Frontend
+## 3. Zero-Downtime Database Maintenance (Preventing Auto-Pause)
+
+Supabase Free Plan projects automatically pause after 7 days of inactivity. To ensure 0 downtime and avoid having to manually reactivate the database:
+
+1. **Cloudflare Cron Trigger (Automatic)**:
+   `wrangler.jsonc` includes `"triggers": { "crons": ["0 4 */2 * *"] }`. When deployed, the Worker runs a scheduled event every 2 days to query Supabase and reset the inactivity counter.
+2. **GitHub Actions Workflow (Automated Backup Keep-Alive)**:
+   In your GitHub repository settings under **Settings -> Secrets and variables -> Actions**, add:
+   - `SUPABASE_URL` (your project URL, e.g. `https://xyz.supabase.co`)
+   - `SUPABASE_ANON_KEY` (your Supabase anon key)
+   - `SYNC_WORKER_URL` (optional, e.g. `https://sync.yourdomain.com`)
+     The `.github/workflows/supabase-keepalive.yml` workflow runs automatically every 3 days (and can be dispatched manually).
+3. **External Uptime Monitor (Optional)**:
+   Point any free uptime monitor (UptimeRobot, Better Stack, Cron-job.org) to ping `https://<your-worker-url>/health?check=db` every 10–30 minutes to maintain active edge and database queries.
+
+## 4. Frontend
 
 Set build variables on Cloudflare Pages:
 
