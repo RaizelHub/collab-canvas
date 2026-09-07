@@ -26,7 +26,10 @@ interface RepositoryOptions {
 
 export interface LocalBoardRepository {
   clearBoards(): RepositoryResult<void>;
-  createBoard(initialTitle?: string, customId?: string): RepositoryResult<LocalBoard>;
+  createBoard(
+    initialTitle?: string,
+    customId?: string,
+  ): RepositoryResult<LocalBoard>;
   deleteBoard(id: string): RepositoryResult<boolean>;
   getBoardById(id: string): RepositoryResult<LocalBoard | null>;
   getBoards(): RepositoryResult<LocalBoard[]>;

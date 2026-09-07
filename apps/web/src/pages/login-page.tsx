@@ -50,7 +50,8 @@ export function LoginPage() {
       </p>
       {!configured && (
         <p className="mt-4 rounded-xl border-l-2 border-accent bg-canvas px-3 py-2 text-sm text-muted">
-          Supabase environment values are required before cloud sign-in can work.
+          Supabase environment values are required before cloud sign-in can
+          work.
         </p>
       )}
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -91,7 +92,10 @@ export function LoginPage() {
         </button>
       </form>
       <div className="mt-5 flex justify-between text-sm">
-        <Link className="text-accent hover:underline font-medium" to="/register">
+        <Link
+          className="text-accent hover:underline font-medium"
+          to="/register"
+        >
           Create account
         </Link>
         <Link className="text-muted hover:text-ink" to="/forgot-password">

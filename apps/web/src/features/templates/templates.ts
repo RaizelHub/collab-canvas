@@ -35,7 +35,11 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
           title: "What Went Well",
           color: "green",
           noteColor: "light-green",
-          notes: ["Team velocity improved", "Great code reviews", "Shipped on schedule"],
+          notes: [
+            "Team velocity improved",
+            "Great code reviews",
+            "Shipped on schedule",
+          ],
         },
         {
           title: "What Could Be Better",
@@ -47,7 +51,10 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
           title: "Action Items",
           color: "blue",
           noteColor: "light-blue",
-          notes: ["Automate release checks", "Schedule API sync before kickoff"],
+          notes: [
+            "Automate release checks",
+            "Schedule API sync before kickoff",
+          ],
         },
       ];
 
@@ -317,10 +324,30 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
         y: number;
         color: TLDefaultColorStyle;
       }[] = [
-        { title: "Browser Client\n(React 19 + tldraw)", x: originX, y: originY + 120, color: "blue" },
-        { title: "Cloudflare Edge\n(Worker + DO)", x: originX + 280, y: originY + 120, color: "orange" },
-        { title: "Supabase DB\n(PostgreSQL + Auth)", x: originX + 560, y: originY + 40, color: "green" },
-        { title: "R2 Bucket\n(Media & Assets)", x: originX + 560, y: originY + 200, color: "violet" },
+        {
+          title: "Browser Client\n(React 19 + tldraw)",
+          x: originX,
+          y: originY + 120,
+          color: "blue",
+        },
+        {
+          title: "Cloudflare Edge\n(Worker + DO)",
+          x: originX + 280,
+          y: originY + 120,
+          color: "orange",
+        },
+        {
+          title: "Supabase DB\n(PostgreSQL + Auth)",
+          x: originX + 560,
+          y: originY + 40,
+          color: "green",
+        },
+        {
+          title: "R2 Bucket\n(Media & Assets)",
+          x: originX + 560,
+          y: originY + 200,
+          color: "violet",
+        },
       ];
 
       blocks.forEach((b) => {
@@ -405,9 +432,24 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
         color: TLDefaultColorStyle;
       }[] = [
         { text: "Feature Discovery", x: originX, y: originY, color: "blue" },
-        { text: "User Experience", x: originX + 440, y: originY, color: "green" },
-        { text: "Realtime Scalability", x: originX, y: originY + 260, color: "yellow" },
-        { text: "Integration & APIs", x: originX + 440, y: originY + 260, color: "orange" },
+        {
+          text: "User Experience",
+          x: originX + 440,
+          y: originY,
+          color: "green",
+        },
+        {
+          text: "Realtime Scalability",
+          x: originX,
+          y: originY + 260,
+          color: "yellow",
+        },
+        {
+          text: "Integration & APIs",
+          x: originX + 440,
+          y: originY + 260,
+          color: "orange",
+        },
       ];
 
       branches.forEach((branch) => {

@@ -20,13 +20,23 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router";
 import type { Editor } from "tldraw";
 
 import { BrandMark } from "../components/brand-mark";
 import { KeyboardShortcutsDialog } from "../components/keyboard-shortcuts-dialog";
 import { LocalModeBadge } from "../components/local-mode-badge";
-import { DEMO_BOARD_ID, getOrCreateDemoBoard, populateDemoBoard } from "../features/boards/demo-board";
+import {
+  DEMO_BOARD_ID,
+  getOrCreateDemoBoard,
+  populateDemoBoard,
+} from "../features/boards/demo-board";
 import { localBoardRepository } from "../features/boards/local-board-repository";
 import { CursorReactions } from "../features/facilitation/cursor-reactions";
 import { DotVoting } from "../features/facilitation/dot-voting";
@@ -37,7 +47,10 @@ import { ArchitectureInspector } from "../features/whiteboard/architecture-inspe
 import { CanvasBackgroundSwitch } from "../features/whiteboard/canvas-background-switch";
 import { MiniMap } from "../features/whiteboard/mini-map";
 import { NetworkHud } from "../features/whiteboard/network-hud";
-import { tidySelectedShapes, sortSelectedNotesByColor } from "../features/whiteboard/tidy-notes";
+import {
+  tidySelectedShapes,
+  sortSelectedNotesByColor,
+} from "../features/whiteboard/tidy-notes";
 import { getBoardPersistenceKey } from "../features/whiteboard/persistence-key";
 import { WhiteboardCanvas } from "../features/whiteboard/whiteboard-canvas";
 import { useTheme } from "../hooks/use-theme";
@@ -53,9 +66,7 @@ export function WhiteboardPage({ isDemo }: WhiteboardPageProps = {}) {
   const [searchParams] = useSearchParams();
 
   const isDemoMode =
-    isDemo ||
-    boardId === DEMO_BOARD_ID ||
-    searchParams.get("demo") === "true";
+    isDemo || boardId === DEMO_BOARD_ID || searchParams.get("demo") === "true";
 
   if (!isDemoMode && isSupabaseConfigured()) {
     return <CloudWhiteboardPage />;
@@ -77,23 +88,23 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
   const [isArchInspectorOpen, setIsArchInspectorOpen] = useState(false);
   const [isVotingOpen, setIsVotingOpen] = useState(false);
 
-  const isDemoMode = isDemo || paramBoardId === DEMO_BOARD_ID || searchParams.get("demo") === "true";
+  const isDemoMode =
+    isDemo ||
+    paramBoardId === DEMO_BOARD_ID ||
+    searchParams.get("demo") === "true";
   const boardId = isDemoMode ? DEMO_BOARD_ID : paramBoardId;
 
-  const initialBoardResult = useMemo(
-    () => {
-      if (isDemoMode) {
-        return { ok: true as const, value: getOrCreateDemoBoard() };
-      }
-      return boardId
-        ? localBoardRepository.getBoardById(boardId)
-        : {
-            ok: true as const,
-            value: null,
-          };
-    },
-    [boardId, isDemoMode],
-  );
+  const initialBoardResult = useMemo(() => {
+    if (isDemoMode) {
+      return { ok: true as const, value: getOrCreateDemoBoard() };
+    }
+    return boardId
+      ? localBoardRepository.getBoardById(boardId)
+      : {
+          ok: true as const,
+          value: null,
+        };
+  }, [boardId, isDemoMode]);
   const [board, setBoard] = useState(
     initialBoardResult.ok ? initialBoardResult.value : null,
   );
@@ -341,7 +352,9 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
             </summary>
             <div className="absolute right-0 top-12 z-[100] w-72 rounded-2xl border-2 border-line bg-panel p-4 text-xs shadow-2xl neo-box-shadow animate-in fade-in duration-150">
               <p className="font-bold text-ink">Local board ID</p>
-              <p className="mt-1 break-all font-mono text-[11px] text-muted">{board.id}</p>
+              <p className="mt-1 break-all font-mono text-[11px] text-muted">
+                {board.id}
+              </p>
 
               {/* 2-Window Test mode */}
               <div className="mt-3 border-t border-line pt-3">
@@ -397,7 +410,9 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
             }
 
             // Apply template if navigated from "New from Template"
-            const templateId = (location.state as { templateId?: string } | null)?.templateId;
+            const templateId = (
+              location.state as { templateId?: string } | null
+            )?.templateId;
             if (templateId && !appliedTemplateRef.current) {
               appliedTemplateRef.current = true;
               const template = BOARD_TEMPLATES.find((t) => t.id === templateId);

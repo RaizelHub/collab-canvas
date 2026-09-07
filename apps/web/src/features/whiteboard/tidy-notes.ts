@@ -25,7 +25,9 @@ export function tidySelectedShapes(editor: Editor) {
 
   // Starting anchor: Top-left most shape position
   const firstShape = selectedShapes[0];
-  const firstBounds = firstShape ? editor.getShapePageBounds(firstShape.id) : null;
+  const firstBounds = firstShape
+    ? editor.getShapePageBounds(firstShape.id)
+    : null;
   const startX = firstBounds ? firstBounds.minX : 100;
   const startY = firstBounds ? firstBounds.minY : 100;
 
@@ -51,10 +53,23 @@ export function tidySelectedShapes(editor: Editor) {
  * Sorts selected sticky notes by color.
  */
 export function sortSelectedNotesByColor(editor: Editor) {
-  const selectedShapes = editor.getSelectedShapes().filter((s) => s.type === "note");
+  const selectedShapes = editor
+    .getSelectedShapes()
+    .filter((s) => s.type === "note");
   if (selectedShapes.length < 2) return;
 
-  const colorOrder = ["light-green", "green", "light-blue", "blue", "yellow", "orange", "light-red", "red", "grey", "black"];
+  const colorOrder = [
+    "light-green",
+    "green",
+    "light-blue",
+    "blue",
+    "yellow",
+    "orange",
+    "light-red",
+    "red",
+    "grey",
+    "black",
+  ];
 
   const sorted = [...selectedShapes].sort((a, b) => {
     const propsA = a.props as { color?: string } | undefined;
@@ -65,7 +80,9 @@ export function sortSelectedNotesByColor(editor: Editor) {
   });
 
   const firstSorted = sorted[0];
-  const firstBounds = firstSorted ? editor.getShapePageBounds(firstSorted.id) : null;
+  const firstBounds = firstSorted
+    ? editor.getShapePageBounds(firstSorted.id)
+    : null;
   const startX = firstBounds ? firstBounds.minX : 100;
   const startY = firstBounds ? firstBounds.minY : 100;
 

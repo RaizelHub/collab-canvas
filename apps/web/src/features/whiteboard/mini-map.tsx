@@ -147,7 +147,10 @@ export function MiniMap({ editor }: MiniMapProps) {
     const targetPageX = minX + (clickX - offsetX) / scale;
     const targetPageY = minY + (clickY - offsetY) / scale;
 
-    editor.centerOnPoint({ x: targetPageX, y: targetPageY }, { animation: { duration: 300 } });
+    editor.centerOnPoint(
+      { x: targetPageX, y: targetPageY },
+      { animation: { duration: 300 } },
+    );
   };
 
   if (!isOpen) {

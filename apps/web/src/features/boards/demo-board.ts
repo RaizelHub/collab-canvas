@@ -11,7 +11,10 @@ export function getOrCreateDemoBoard() {
   }
 
   // Create or register the demo board with predictable DEMO_BOARD_ID
-  const result = localBoardRepository.createBoard("Interactive Showcase Sandbox", DEMO_BOARD_ID);
+  const result = localBoardRepository.createBoard(
+    "Interactive Showcase Sandbox",
+    DEMO_BOARD_ID,
+  );
   if (result.ok) {
     return result.value;
   }
@@ -69,7 +72,7 @@ export function populateDemoBoard(editor: Editor) {
     y: 130,
     props: {
       richText: toRichText(
-        "Welcome! This sandbox showcases real-time collaboration with Cloudflare Durable Objects, SQLite, Supabase RLS, and tldraw.\nTry: 1) Click 'System Architecture' in header  2) Try 'Dot Voting' or 'Templates'  3) Open in 2 windows to test live sync!"
+        "Welcome! This sandbox showcases real-time collaboration with Cloudflare Durable Objects, SQLite, Supabase RLS, and tldraw.\nTry: 1) Click 'System Architecture' in header  2) Try 'Dot Voting' or 'Templates'  3) Open in 2 windows to test live sync!",
       ),
       size: "s",
       color: "grey",
@@ -237,7 +240,9 @@ export function populateDemoBoard(editor: Editor) {
     x: retroX + 20,
     y: retroY + 65,
     props: {
-      richText: toRichText("Zero-latency local optimistic rendering with instant UI feedback."),
+      richText: toRichText(
+        "Zero-latency local optimistic rendering with instant UI feedback.",
+      ),
       color: "light-green",
       size: "s",
     },
@@ -248,7 +253,9 @@ export function populateDemoBoard(editor: Editor) {
     x: retroX + 20,
     y: retroY + 210,
     props: {
-      richText: toRichText("Durable Object Hibernation reduces cost to near zero when idle."),
+      richText: toRichText(
+        "Durable Object Hibernation reduces cost to near zero when idle.",
+      ),
       color: "light-green",
       size: "s",
     },
@@ -288,7 +295,9 @@ export function populateDemoBoard(editor: Editor) {
     x: retroX + colW + gap + 20,
     y: retroY + 65,
     props: {
-      richText: toRichText("Flaky network simulation testing on high-packet-loss 3G."),
+      richText: toRichText(
+        "Flaky network simulation testing on high-packet-loss 3G.",
+      ),
       color: "light-red",
       size: "s",
     },
@@ -328,7 +337,9 @@ export function populateDemoBoard(editor: Editor) {
     x: retroX + (colW + gap) * 2 + 20,
     y: retroY + 65,
     props: {
-      richText: toRichText("Deploy automated k6 WebSocket stress benchmark in CI."),
+      richText: toRichText(
+        "Deploy automated k6 WebSocket stress benchmark in CI.",
+      ),
       color: "light-blue",
       size: "s",
     },

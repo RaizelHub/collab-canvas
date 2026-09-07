@@ -5,7 +5,11 @@ import { useNavigate } from "react-router";
 import { BoardCard } from "../features/boards/board-card";
 import { CreateBoardButton } from "../features/boards/create-board-button";
 import { DeleteBoardDialog } from "../features/boards/delete-board-dialog";
-import { getStarredBoardIds, isBoardStarred, toggleStarredBoard } from "../features/boards/favorites";
+import {
+  getStarredBoardIds,
+  isBoardStarred,
+  toggleStarredBoard,
+} from "../features/boards/favorites";
 import type { LocalBoard } from "../features/boards/local-board";
 import {
   localBoardRepository,
@@ -124,7 +128,9 @@ function LocalDashboardPage({
       setStorageError(result.error);
       return;
     }
-    navigate(`/board/${result.value.id}`, { state: { templateId: template.id } });
+    navigate(`/board/${result.value.id}`, {
+      state: { templateId: template.id },
+    });
   };
 
   const normalizedSearch = searchQuery.trim().toLocaleLowerCase();

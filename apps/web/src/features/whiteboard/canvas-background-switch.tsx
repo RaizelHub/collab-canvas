@@ -8,7 +8,9 @@ interface CanvasBackgroundSwitchProps {
   editor?: Editor | null;
 }
 
-export function CanvasBackgroundSwitch({ editor }: CanvasBackgroundSwitchProps) {
+export function CanvasBackgroundSwitch({
+  editor,
+}: CanvasBackgroundSwitchProps) {
   const [gridMode, setGridMode] = useState<GridMode>("dots");
 
   const setMode = (mode: GridMode) => {
@@ -16,7 +18,12 @@ export function CanvasBackgroundSwitch({ editor }: CanvasBackgroundSwitchProps) 
     if (!editor) return;
 
     // tldraw allows toggling gridMode via editor settings / instance state
-    if (mode === "dots" || mode === "grid" || mode === "blueprint" || mode === "graph") {
+    if (
+      mode === "dots" ||
+      mode === "grid" ||
+      mode === "blueprint" ||
+      mode === "graph"
+    ) {
       editor.updateInstanceState({ isGridMode: true });
     } else {
       editor.updateInstanceState({ isGridMode: false });

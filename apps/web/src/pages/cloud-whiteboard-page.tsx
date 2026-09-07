@@ -59,7 +59,10 @@ import { ArchitectureInspector } from "../features/whiteboard/architecture-inspe
 import { CanvasBackgroundSwitch } from "../features/whiteboard/canvas-background-switch";
 import { MiniMap } from "../features/whiteboard/mini-map";
 import { NetworkHud } from "../features/whiteboard/network-hud";
-import { tidySelectedShapes, sortSelectedNotesByColor } from "../features/whiteboard/tidy-notes";
+import {
+  tidySelectedShapes,
+  sortSelectedNotesByColor,
+} from "../features/whiteboard/tidy-notes";
 import { WhiteboardCanvas } from "../features/whiteboard/whiteboard-canvas";
 import { getBoardPersistenceKey } from "../features/whiteboard/persistence-key";
 import { createAccessibleBoardHtml } from "../features/whiteboard/accessible-export";
@@ -118,7 +121,8 @@ export function CloudWhiteboardPage() {
   const presenceAnnouncementTimerRef = useRef<number | null>(null);
   const [participants, setParticipants] = useState<PresenceParticipant[]>([]);
   const [presenceAnnouncement, setPresenceAnnouncement] = useState("");
-  const [followingParticipant, setFollowingParticipant] = useState<PresenceParticipant | null>(null);
+  const [followingParticipant, setFollowingParticipant] =
+    useState<PresenceParticipant | null>(null);
   const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isArchInspectorOpen, setIsArchInspectorOpen] = useState(false);
@@ -626,7 +630,9 @@ export function CloudWhiteboardPage() {
             </summary>
             <div className="absolute right-0 top-12 z-[100] w-72 rounded-2xl border-2 border-line bg-panel p-4 text-xs shadow-2xl neo-box-shadow animate-in fade-in duration-150">
               <p className="font-bold text-ink">Board ID</p>
-              <p className="mt-1 break-all font-mono text-[11px] text-muted">{board.id}</p>
+              <p className="mt-1 break-all font-mono text-[11px] text-muted">
+                {board.id}
+              </p>
 
               {/* 2-Window Test mode */}
               <div className="mt-3 border-t border-line pt-3">
@@ -771,7 +777,9 @@ export function CloudWhiteboardPage() {
             setEditor(mountedEditor);
 
             // Apply template if navigated from "New from Template"
-            const templateId = (location.state as { templateId?: string } | null)?.templateId;
+            const templateId = (
+              location.state as { templateId?: string } | null
+            )?.templateId;
             if (templateId && !appliedTemplateRef.current) {
               appliedTemplateRef.current = true;
               const template = BOARD_TEMPLATES.find((t) => t.id === templateId);

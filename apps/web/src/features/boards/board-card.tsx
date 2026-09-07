@@ -99,11 +99,15 @@ export function BoardCard<Board extends LocalBoard>({
             )}
           </form>
         ) : (
-          <h2 className="flex-1 truncate text-sm font-semibold">{board.title}</h2>
+          <h2 className="flex-1 truncate text-sm font-semibold">
+            {board.title}
+          </h2>
         )}
         {onToggleStar && (
           <button
-            aria-label={isStarred ? `Unstar ${board.title}` : `Star ${board.title}`}
+            aria-label={
+              isStarred ? `Unstar ${board.title}` : `Star ${board.title}`
+            }
             className="grid size-7 shrink-0 place-items-center rounded text-muted transition-colors hover:text-amber-500"
             onClick={() => onToggleStar(board)}
             type="button"

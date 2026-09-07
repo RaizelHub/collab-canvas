@@ -29,7 +29,12 @@ const VOTE_OPTIONS: {
 }[] = [
   { id: "thumbs", label: "Thumbs Up", icon: ThumbsUp, color: "text-blue-500" },
   { id: "fire", label: "High Priority", icon: Flame, color: "text-orange-500" },
-  { id: "bulb", label: "Great Idea", icon: Lightbulb, color: "text-yellow-500" },
+  {
+    id: "bulb",
+    label: "Great Idea",
+    icon: Lightbulb,
+    color: "text-yellow-500",
+  },
   { id: "star", label: "Favorite", icon: Star, color: "text-amber-500" },
   { id: "heart", label: "Love", icon: Heart, color: "text-pink-500" },
 ];
@@ -52,7 +57,9 @@ function VoteBadgeIcon({ type }: { type: string }) {
 
 export function DotVoting({ editor, isOpen, onClose }: DotVotingProps) {
   const [selectedShapes, setSelectedShapes] = useState<TLShape[]>([]);
-  const [voteCounts, setVoteCounts] = useState<Record<string, { count: number; text: string; type: string }>>({});
+  const [voteCounts, setVoteCounts] = useState<
+    Record<string, { count: number; text: string; type: string }>
+  >({});
   const [lastVotedId, setLastVotedId] = useState<string | null>(null);
 
   // Sync selected shapes and calculate vote tally from shapes on board
@@ -65,14 +72,26 @@ export function DotVoting({ editor, isOpen, onClose }: DotVotingProps) {
 
       // Tally votes from shapes with meta.votes
       const allShapes = editor.getCurrentPageShapes();
-      const tally: Record<string, { count: number; text: string; type: string }> = {};
+      const tally: Record<
+        string,
+        { count: number; text: string; type: string }
+      > = {};
 
       allShapes.forEach((shape) => {
-        const meta = shape.meta as { votes?: number; voteType?: string } | undefined;
+        const meta = shape.meta as
+          | { votes?: number; voteType?: string }
+          | undefined;
         if (meta?.votes && meta.votes > 0) {
           let text = "Selected Item";
-          if ("props" in shape && typeof shape.props === "object" && shape.props) {
-            const props = shape.props as { text?: string; richText?: { text?: string } };
+          if (
+            "props" in shape &&
+            typeof shape.props === "object" &&
+            shape.props
+          ) {
+            const props = shape.props as {
+              text?: string;
+              richText?: { text?: string };
+            };
             text = props.richText?.text || props.text || "Shape";
           }
           tally[shape.id] = {
@@ -101,7 +120,8 @@ export function DotVoting({ editor, isOpen, onClose }: DotVotingProps) {
     if (selected.length === 0) return;
 
     selected.forEach((shape) => {
-      const currentMeta = (shape.meta as { votes?: number; voteType?: string }) || {};
+      const currentMeta =
+        (shape.meta as { votes?: number; voteType?: string }) || {};
       const newVotes = (currentMeta.votes || 0) + 1;
 
       editor.updateShape({
@@ -127,7 +147,9 @@ export function DotVoting({ editor, isOpen, onClose }: DotVotingProps) {
     if (!editor) return;
     const allShapes = editor.getCurrentPageShapes();
     allShapes.forEach((shape) => {
-      const meta = shape.meta as { votes?: number; voteType?: string } | undefined;
+      const meta = shape.meta as
+        | { votes?: number; voteType?: string }
+        | undefined;
       if (meta?.votes) {
         editor.updateShape({
           id: shape.id,
@@ -158,7 +180,9 @@ export function DotVoting({ editor, isOpen, onClose }: DotVotingProps) {
           </div>
           <div>
             <h3 className="text-sm font-bold text-ink">Agile Dot Voting</h3>
-            <p className="text-[11px] text-muted">Cast votes on sticky notes &amp; ideas</p>
+            <p className="text-[11px] text-muted">
+              Cast votes on sticky notes &amp; ideas
+            </p>
           </div>
         </div>
         <button
@@ -178,7 +202,8 @@ export function DotVoting({ editor, isOpen, onClose }: DotVotingProps) {
             {selectedShapes.length > 0 ? (
               <span className="text-accent font-semibold flex items-center gap-1">
                 <CheckCircle2 className="size-3.5" />
-                Voting on {selectedShapes.length} selected item{selectedShapes.length > 1 ? "s" : ""}
+                Voting on {selectedShapes.length} selected item
+                {selectedShapes.length > 1 ? "s" : ""}
               </span>
             ) : (
               <span className="text-muted">
@@ -246,7 +271,9 @@ export function DotVoting({ editor, isOpen, onClose }: DotVotingProps) {
                     <span className="font-mono font-bold text-accent text-[11px]">
                       #{index + 1}
                     </span>
-                    <span className="truncate text-ink font-medium">{item.text || "Sticky Note"}</span>
+                    <span className="truncate text-ink font-medium">
+                      {item.text || "Sticky Note"}
+                    </span>
                   </div>
                   <span className="shrink-0 font-mono font-semibold rounded-lg bg-panel px-2 py-0.5 border border-line flex items-center gap-1 text-[11px]">
                     <VoteBadgeIcon type={item.type} />

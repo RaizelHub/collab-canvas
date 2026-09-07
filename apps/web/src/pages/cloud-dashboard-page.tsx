@@ -6,7 +6,11 @@ import { useAuth } from "../features/auth/auth-context";
 import { BoardCard } from "../features/boards/board-card";
 import { CreateBoardButton } from "../features/boards/create-board-button";
 import { DeleteBoardDialog } from "../features/boards/delete-board-dialog";
-import { getStarredBoardIds, isBoardStarred, toggleStarredBoard } from "../features/boards/favorites";
+import {
+  getStarredBoardIds,
+  isBoardStarred,
+  toggleStarredBoard,
+} from "../features/boards/favorites";
 import { TemplatePickerDialog } from "../features/templates/template-picker-dialog";
 import type { BoardTemplate } from "../features/templates/templates";
 import {

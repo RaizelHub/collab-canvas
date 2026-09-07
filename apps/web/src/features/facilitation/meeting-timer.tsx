@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, Pause, Play, RotateCcw, Timer } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Pause,
+  Play,
+  RotateCcw,
+  Timer,
+} from "lucide-react";
 
 interface MeetingTimerProps {
   onTimeUp?: () => void;
@@ -30,7 +37,10 @@ export function MeetingTimer({ onTimeUp }: MeetingTimerProps) {
         osc.type = "sine";
         osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
         gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.12);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.6);
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          ctx.currentTime + i * 0.12 + 0.6,
+        );
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(ctx.currentTime + i * 0.12);
@@ -123,7 +133,11 @@ export function MeetingTimer({ onTimeUp }: MeetingTimerProps) {
             onClick={() => setIsMinimized(!isMinimized)}
             type="button"
           >
-            {isMinimized ? <ChevronDown className="size-3.5" /> : <ChevronUp className="size-3.5" />}
+            {isMinimized ? (
+              <ChevronDown className="size-3.5" />
+            ) : (
+              <ChevronUp className="size-3.5" />
+            )}
           </button>
           <button
             aria-label="Close timer"
@@ -172,7 +186,9 @@ export function MeetingTimer({ onTimeUp }: MeetingTimerProps) {
             <div className="mt-3 flex items-center justify-center gap-2">
               <button
                 className={`flex h-7 items-center gap-1 rounded px-3 text-xs font-medium text-white transition-opacity ${
-                  isRunning ? "bg-amber-600 hover:bg-amber-700" : "bg-accent hover:opacity-90"
+                  isRunning
+                    ? "bg-amber-600 hover:bg-amber-700"
+                    : "bg-accent hover:opacity-90"
                 }`}
                 onClick={toggleRunning}
                 type="button"

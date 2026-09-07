@@ -62,7 +62,7 @@ export function AccessibleDialog({
       const target = initialFocusRef?.current ?? getFocusableElements()[0];
       target?.focus();
     };
-    const frame = window.requestAnimationFrame(focusInitialElement);
+    focusInitialElement();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -96,7 +96,6 @@ export function AccessibleDialog({
 
     document.addEventListener("keydown", handleKeyDown, true);
     return () => {
-      window.cancelAnimationFrame(frame);
       document.removeEventListener("keydown", handleKeyDown, true);
       appRoot?.removeAttribute("inert");
       previouslyFocused?.focus();

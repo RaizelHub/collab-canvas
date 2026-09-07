@@ -6,7 +6,9 @@ export function getStarredBoardIds(): Set<string> {
     if (!raw) return new Set();
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      return new Set(parsed.filter((item): item is string => typeof item === "string"));
+      return new Set(
+        parsed.filter((item): item is string => typeof item === "string"),
+      );
     }
   } catch {
     // ignore parse failure

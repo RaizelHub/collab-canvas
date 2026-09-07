@@ -47,7 +47,7 @@ export function NetworkHud({
           opsHistoryRef.current.push(Date.now());
         }
       },
-      { source: "all", scope: "document" }
+      { source: "all", scope: "document" },
     );
 
     return () => unlisten();
@@ -58,7 +58,9 @@ export function NetworkHud({
     const interval = window.setInterval(async () => {
       // Calculate ops in the last 2 seconds
       const now = Date.now();
-      opsHistoryRef.current = opsHistoryRef.current.filter((t) => now - t <= 2000);
+      opsHistoryRef.current = opsHistoryRef.current.filter(
+        (t) => now - t <= 2000,
+      );
       setOpsPerSec(Math.round((opsHistoryRef.current.length / 2) * 10) / 10);
 
       // Measure real ping latency to sync server if configured, else synthetic fast local loop
@@ -72,8 +74,13 @@ export function NetworkHud({
           if (res.ok) {
             const rtt = Math.round(performance.now() - start);
             setLatencyMs(rtt);
-            const colo = res.headers.get("cf-ray") || "Edge (Cloudflare Workers)";
-            setActiveRegion(colo.includes("-") ? `Edge PoP (${colo.split("-")[1]})` : "Cloudflare Edge");
+            const colo =
+              res.headers.get("cf-ray") || "Edge (Cloudflare Workers)";
+            setActiveRegion(
+              colo.includes("-")
+                ? `Edge PoP (${colo.split("-")[1]})`
+                : "Cloudflare Edge",
+            );
           } else {
             setLatencyMs(null);
           }
@@ -111,8 +118,8 @@ export function NetworkHud({
             connectionStatus === "connected"
               ? "bg-emerald-500 animate-pulse"
               : connectionStatus === "connecting"
-              ? "bg-amber-500 animate-ping"
-              : "bg-rose-500"
+                ? "bg-amber-500 animate-ping"
+                : "bg-rose-500"
           }`}
         />
         <span className="font-mono font-medium">
@@ -121,7 +128,11 @@ export function NetworkHud({
         <span className="text-muted text-[10px]">|</span>
         <span className="text-muted font-mono">{opsPerSec} ops/s</span>
         <Activity className="size-3 text-accent" />
-        {isOpen ? <ChevronDown className="size-3 text-muted" /> : <ChevronUp className="size-3 text-muted" />}
+        {isOpen ? (
+          <ChevronDown className="size-3 text-muted" />
+        ) : (
+          <ChevronUp className="size-3 text-muted" />
+        )}
       </button>
 
       {/* Expanded Diagnostics Card */}
@@ -130,7 +141,9 @@ export function NetworkHud({
           <div className="flex items-center justify-between border-b border-line pb-2">
             <div className="flex items-center gap-1.5">
               <Radio className="size-4 text-accent" />
-              <span className="font-semibold text-ink">Edge & State Diagnostics</span>
+              <span className="font-semibold text-ink">
+                Edge & State Diagnostics
+              </span>
             </div>
             <button
               aria-label="Close diagnostics"
@@ -161,8 +174,12 @@ export function NetworkHud({
                 <span className="text-muted">Throughput</span>
               </div>
               <div className="text-right">
-                <span className="font-mono font-semibold text-ink">{opsPerSec} ops/s</span>
-                <span className="ml-1 text-[10px] text-muted font-mono">({opsCount} total)</span>
+                <span className="font-mono font-semibold text-ink">
+                  {opsPerSec} ops/s
+                </span>
+                <span className="ml-1 text-[10px] text-muted font-mono">
+                  ({opsCount} total)
+                </span>
               </div>
             </div>
 

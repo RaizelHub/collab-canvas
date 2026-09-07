@@ -85,7 +85,8 @@ export function WhiteboardCanvas({
   persistenceKey,
   shareToken,
 }: WhiteboardCanvasProps) {
-  const isLocalOrDemo = Boolean(persistenceKey) || boardId === "demo-sandbox-showcase";
+  const isLocalOrDemo =
+    Boolean(persistenceKey) || boardId === "demo-sandbox-showcase";
 
   if (isLocalOrDemo || !syncServerUrl || !supabase) {
     return (

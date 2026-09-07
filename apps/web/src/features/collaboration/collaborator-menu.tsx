@@ -41,7 +41,10 @@ export function CollaboratorMenu({
           {participants.map((participant) => {
             const isFollowing = followingUserId === participant.id;
             return (
-              <li className="flex items-center justify-between gap-2 py-1.5" key={participant.id}>
+              <li
+                className="flex items-center justify-between gap-2 py-1.5"
+                key={participant.id}
+              >
                 <div className="flex min-w-0 items-center gap-2">
                   <span
                     aria-hidden="true"
@@ -92,4 +95,3 @@ export function CollaboratorMenu({
     </details>
   );
 }
-

@@ -45,7 +45,9 @@ export function LandingPage() {
     const ping = async () => {
       const start = performance.now();
       try {
-        const res = await fetch(`${syncServerUrl}/health`, { cache: "no-store" });
+        const res = await fetch(`${syncServerUrl}/health`, {
+          cache: "no-store",
+        });
         if (res.ok) setLatencyMs(Math.round(performance.now() - start));
       } catch {
         setLatencyMs(null);
@@ -104,7 +106,11 @@ export function LandingPage() {
               onClick={toggleTheme}
               type="button"
             >
-              {theme === "light" ? <Moon className="size-4" /> : <Sun className="size-4" />}
+              {theme === "light" ? (
+                <Moon className="size-4" />
+              ) : (
+                <Sun className="size-4" />
+              )}
             </button>
 
             <Link
@@ -130,9 +136,15 @@ export function LandingPage() {
         <div className="mx-auto max-w-4xl text-center">
           {/* Status Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-line bg-panel px-3.5 py-1 text-xs font-medium text-muted shadow-xs">
-            <span className="text-ink font-semibold">Real-Time Sync Engine</span>
+            <span className="text-ink font-semibold">
+              Real-Time Sync Engine
+            </span>
             <span className="text-muted">·</span>
-            <span className="font-mono text-[11px]">{latencyMs !== null ? `${latencyMs}ms latency` : "Optimistic edge sync"}</span>
+            <span className="font-mono text-[11px]">
+              {latencyMs !== null
+                ? `${latencyMs}ms latency`
+                : "Optimistic edge sync"}
+            </span>
           </div>
 
           <h1 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-ink leading-[1.15]">
@@ -140,7 +152,10 @@ export function LandingPage() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-base sm:text-lg text-muted leading-relaxed">
-            The high-performance infinite whiteboard powered by <strong>tldraw</strong>, <strong>Cloudflare Durable Objects</strong>, and <strong>Supabase</strong>. Brainstorm ideas, diagram architectures, and vote on action items in real time.
+            The high-performance infinite whiteboard powered by{" "}
+            <strong>tldraw</strong>, <strong>Cloudflare Durable Objects</strong>
+            , and <strong>Supabase</strong>. Brainstorm ideas, diagram
+            architectures, and vote on action items in real time.
           </p>
 
           {/* Primary Action Buttons */}
@@ -190,7 +205,10 @@ export function LandingPage() {
       </section>
 
       {/* Live Real Canvas Sandbox Section */}
-      <section className="px-4 py-12 sm:px-6 bg-panel/50 border-y border-line" id="sandbox">
+      <section
+        className="px-4 py-12 sm:px-6 bg-panel/50 border-y border-line"
+        id="sandbox"
+      >
         <div className="mx-auto max-w-6xl">
           {/* Header Controls for Live Sandbox */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
@@ -207,29 +225,34 @@ export function LandingPage() {
                 Try the Live Canvas Below
               </h2>
               <p className="text-sm text-muted">
-                Fully functional whiteboard. Draw with the pen, move sticky notes, cast dot votes, or trigger live reactions.
+                Fully functional whiteboard. Draw with the pen, move sticky
+                notes, cast dot votes, or trigger live reactions.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
               {/* Quick Reactions */}
               <div className="flex items-center gap-1 rounded-lg border border-line bg-panel p-1">
-                <span className="px-2 text-xs font-medium text-muted">React:</span>
-                {(Object.keys(REACTION_CONFIG) as ReactionKind[]).map((kind) => {
-                  const { icon: Icon, label, color } = REACTION_CONFIG[kind];
-                  return (
-                    <button
-                      aria-label={`Send ${label} reaction`}
-                      className="grid size-7 place-items-center rounded hover:bg-hover active:scale-95 transition"
-                      key={kind}
-                      onClick={() => triggerCanvasReaction(kind)}
-                      title={label}
-                      type="button"
-                    >
-                      <Icon className={`size-3.5 ${color}`} />
-                    </button>
-                  );
-                })}
+                <span className="px-2 text-xs font-medium text-muted">
+                  React:
+                </span>
+                {(Object.keys(REACTION_CONFIG) as ReactionKind[]).map(
+                  (kind) => {
+                    const { icon: Icon, label, color } = REACTION_CONFIG[kind];
+                    return (
+                      <button
+                        aria-label={`Send ${label} reaction`}
+                        className="grid size-7 place-items-center rounded hover:bg-hover active:scale-95 transition"
+                        key={kind}
+                        onClick={() => triggerCanvasReaction(kind)}
+                        title={label}
+                        type="button"
+                      >
+                        <Icon className={`size-3.5 ${color}`} />
+                      </button>
+                    );
+                  },
+                )}
               </div>
 
               {/* Dot Voting Toggle */}
@@ -305,7 +328,8 @@ export function LandingPage() {
               Enterprise Whiteboard Architecture
             </h2>
             <p className="mt-2 text-sm text-muted">
-              Built for speed, low latency, and dependable data persistence for teams of all sizes.
+              Built for speed, low latency, and dependable data persistence for
+              teams of all sizes.
             </p>
           </div>
 
@@ -315,9 +339,12 @@ export function LandingPage() {
               <div className="grid size-10 place-items-center rounded-lg bg-accent/10 text-accent">
                 <Palette className="size-5" />
               </div>
-              <h3 className="mt-4 text-base font-bold text-ink">60 FPS Infinite Canvas</h3>
+              <h3 className="mt-4 text-base font-bold text-ink">
+                60 FPS Infinite Canvas
+              </h3>
               <p className="mt-2 text-xs text-muted leading-relaxed">
-                Vector drawing, smart sticky notes, automatic grid snapping, shapes, connectors, and rich typography powered by tldraw.
+                Vector drawing, smart sticky notes, automatic grid snapping,
+                shapes, connectors, and rich typography powered by tldraw.
               </p>
               <div className="mt-4 border-t border-line pt-3 font-mono text-[11px] text-muted">
                 Freehand Pen · Shapes · Connectors
@@ -329,9 +356,13 @@ export function LandingPage() {
               <div className="grid size-10 place-items-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
                 <Users className="size-5" />
               </div>
-              <h3 className="mt-4 text-base font-bold text-ink">Multi-Cursor Presence</h3>
+              <h3 className="mt-4 text-base font-bold text-ink">
+                Multi-Cursor Presence
+              </h3>
               <p className="mt-2 text-xs text-muted leading-relaxed">
-                Smooth cursor interpolation with user labels, laser presentation pointer, follow-me presenter camera lock, and synchronized viewport.
+                Smooth cursor interpolation with user labels, laser presentation
+                pointer, follow-me presenter camera lock, and synchronized
+                viewport.
               </p>
               <div className="mt-4 border-t border-line pt-3 font-mono text-[11px] text-muted">
                 Live Cursors · Laser Pointer · Follow Mode
@@ -343,9 +374,13 @@ export function LandingPage() {
               <div className="grid size-10 place-items-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
                 <Vote className="size-5" />
               </div>
-              <h3 className="mt-4 text-base font-bold text-ink">Agile Dot Voting</h3>
+              <h3 className="mt-4 text-base font-bold text-ink">
+                Agile Dot Voting
+              </h3>
               <p className="mt-2 text-xs text-muted leading-relaxed">
-                Facilitate sprint retrospectives and design reviews. Cast votes directly on sticky notes, tally results, and view live vote rankings.
+                Facilitate sprint retrospectives and design reviews. Cast votes
+                directly on sticky notes, tally results, and view live vote
+                rankings.
               </p>
               <div className="mt-4 border-t border-line pt-3 font-mono text-[11px] text-muted">
                 Facilitation · Leaderboard · Sprint Retro
@@ -357,9 +392,13 @@ export function LandingPage() {
               <div className="grid size-10 place-items-center rounded-lg bg-pink-500/10 text-pink-600 dark:text-pink-400">
                 <LayoutGrid className="size-5" />
               </div>
-              <h3 className="mt-4 text-base font-bold text-ink">Tidy &amp; Organize</h3>
+              <h3 className="mt-4 text-base font-bold text-ink">
+                Tidy &amp; Organize
+              </h3>
               <p className="mt-2 text-xs text-muted leading-relaxed">
-                Clean up brainstorming chaos in one click. Align scattered sticky notes into geometric grids or sort notes automatically by color.
+                Clean up brainstorming chaos in one click. Align scattered
+                sticky notes into geometric grids or sort notes automatically by
+                color.
               </p>
               <div className="mt-4 border-t border-line pt-3 font-mono text-[11px] text-muted">
                 Tidy to Grid · Sort by Color
@@ -371,9 +410,13 @@ export function LandingPage() {
               <div className="grid size-10 place-items-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                 <FileDown className="size-5" />
               </div>
-              <h3 className="mt-4 text-base font-bold text-ink">Vector &amp; HTML Export</h3>
+              <h3 className="mt-4 text-base font-bold text-ink">
+                Vector &amp; HTML Export
+              </h3>
               <p className="mt-2 text-xs text-muted leading-relaxed">
-                Export high-resolution visual PNGs, vector PDFs for documentation, or structured WCAG 2.2 accessible companion HTML pages.
+                Export high-resolution visual PNGs, vector PDFs for
+                documentation, or structured WCAG 2.2 accessible companion HTML
+                pages.
               </p>
               <div className="mt-4 border-t border-line pt-3 font-mono text-[11px] text-muted">
                 PNG · Vector PDF · Accessible HTML
@@ -385,9 +428,13 @@ export function LandingPage() {
               <div className="grid size-10 place-items-center rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
                 <ShieldCheck className="size-5" />
               </div>
-              <h3 className="mt-4 text-base font-bold text-ink">Edge SQLite &amp; Postgres RLS</h3>
+              <h3 className="mt-4 text-base font-bold text-ink">
+                Edge SQLite &amp; Postgres RLS
+              </h3>
               <p className="mt-2 text-xs text-muted leading-relaxed">
-                Decentralized room state stored in Cloudflare Durable Objects backed by SQLite, paired with Supabase PostgreSQL Row-Level Security.
+                Decentralized room state stored in Cloudflare Durable Objects
+                backed by SQLite, paired with Supabase PostgreSQL Row-Level
+                Security.
               </p>
               <div className="mt-4 border-t border-line pt-3 font-mono text-[11px] text-muted">
                 Cloudflare Workers · Durable Objects · Supabase
@@ -398,7 +445,10 @@ export function LandingPage() {
       </section>
 
       {/* Templates Section */}
-      <section className="px-4 py-16 sm:px-6 bg-panel/30 border-t border-line" id="templates">
+      <section
+        className="px-4 py-16 sm:px-6 bg-panel/30 border-t border-line"
+        id="templates"
+      >
         <div className="mx-auto max-w-6xl">
           <div className="text-center max-w-2xl mx-auto">
             <span className="font-mono text-xs font-semibold text-accent uppercase tracking-wider">
@@ -408,7 +458,8 @@ export function LandingPage() {
               Ready-Made Starters
             </h2>
             <p className="mt-2 text-sm text-muted">
-              Jumpstart any collaborative session in seconds with standardized team frameworks.
+              Jumpstart any collaborative session in seconds with standardized
+              team frameworks.
             </p>
           </div>
 
@@ -417,9 +468,12 @@ export function LandingPage() {
               <div className="grid size-10 place-items-center rounded-lg bg-accent/10 text-accent">
                 <RotateCcw className="size-5" />
               </div>
-              <h3 className="mt-3 text-base font-bold text-ink">Sprint Retrospective</h3>
+              <h3 className="mt-3 text-base font-bold text-ink">
+                Sprint Retrospective
+              </h3>
               <p className="mt-1.5 text-xs text-muted leading-relaxed">
-                Standard 3-column template for What Went Well, What Could Improve, and Action Items.
+                Standard 3-column template for What Went Well, What Could
+                Improve, and Action Items.
               </p>
               <Link
                 className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-line bg-panel px-3 py-1.5 text-xs font-semibold text-accent hover:bg-hover transition"
@@ -434,9 +488,12 @@ export function LandingPage() {
               <div className="grid size-10 place-items-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
                 <Cpu className="size-5" />
               </div>
-              <h3 className="mt-3 text-base font-bold text-ink">System Architecture</h3>
+              <h3 className="mt-3 text-base font-bold text-ink">
+                System Architecture
+              </h3>
               <p className="mt-1.5 text-xs text-muted leading-relaxed">
-                Pre-wired diagram components for Clients, API Gateways, Edge Workers, and Databases.
+                Pre-wired diagram components for Clients, API Gateways, Edge
+                Workers, and Databases.
               </p>
               <Link
                 className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-line bg-panel px-3 py-1.5 text-xs font-semibold text-accent hover:bg-hover transition"
@@ -451,9 +508,12 @@ export function LandingPage() {
               <div className="grid size-10 place-items-center rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
                 <Lightbulb className="size-5" />
               </div>
-              <h3 className="mt-3 text-base font-bold text-ink">Brainstorm &amp; Mindmap</h3>
+              <h3 className="mt-3 text-base font-bold text-ink">
+                Brainstorm &amp; Mindmap
+              </h3>
               <p className="mt-1.5 text-xs text-muted leading-relaxed">
-                Radial idea mapping nodes with categorized sticky notes and designated voting areas.
+                Radial idea mapping nodes with categorized sticky notes and
+                designated voting areas.
               </p>
               <Link
                 className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-line bg-panel px-3 py-1.5 text-xs font-semibold text-accent hover:bg-hover transition"
@@ -474,7 +534,8 @@ export function LandingPage() {
             Start Collaborating in Seconds
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-sm sm:text-base text-muted leading-relaxed">
-            No signup, no credit card, and zero friction. Create an instant whiteboard or sign in to save boards to your team workspace.
+            No signup, no credit card, and zero friction. Create an instant
+            whiteboard or sign in to save boards to your team workspace.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -506,10 +567,18 @@ export function LandingPage() {
             <span>— The Distributed Real-Time Collaborative Whiteboard</span>
           </div>
           <div className="flex items-center gap-6 font-medium text-ink">
-            <Link className="hover:text-accent transition" to="/demo">Sandbox</Link>
-            <Link className="hover:text-accent transition" to="/dashboard">Workspace</Link>
-            <Link className="hover:text-accent transition" to="/login">Sign In</Link>
-            <Link className="hover:text-accent transition" to="/register">Register</Link>
+            <Link className="hover:text-accent transition" to="/demo">
+              Sandbox
+            </Link>
+            <Link className="hover:text-accent transition" to="/dashboard">
+              Workspace
+            </Link>
+            <Link className="hover:text-accent transition" to="/login">
+              Sign In
+            </Link>
+            <Link className="hover:text-accent transition" to="/register">
+              Register
+            </Link>
           </div>
         </div>
       </footer>
