@@ -36,6 +36,9 @@ export function AppShell() {
             Dashboard
           </Link>
 
+          <Link className="text-sm text-muted hover:text-ink" to="/pages">
+            Pages
+          </Link>
           <button
             aria-label={`Use ${theme === "light" ? "dark" : "light"} mode`}
             className="ml-auto grid size-9 shrink-0 place-items-center border border-line bg-panel text-muted transition hover:bg-hover hover:text-ink"

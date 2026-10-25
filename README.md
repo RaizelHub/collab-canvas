@@ -118,14 +118,15 @@ npx wrangler deploy
 rate-limiter Durable Object, SQLite migrations, and automated keep-alive cron triggers.
 Do not rename deployed Durable Object classes without a migration plan.
 
-## Zero-Downtime Database Maintenance
+## Free-plan database activity checks
 
-Supabase Free Plan projects automatically pause after 7 days without traffic, requiring manual reactivation.
-CollabCanvas prevents database auto-pausing and ensures 0 downtime using two redundant layers:
+Supabase may pause Free projects with low database activity over seven days. Scheduled queries are best-effort maintenance, not a zero-downtime guarantee, and cannot resume an already paused project.
 
-1. **Cloudflare Worker Cron**: When deployed, the Worker automatically runs every 2 days to ping Supabase (`/rest/v1/boards?select=id&limit=1`), resetting the 7-day inactivity timer.
-2. **GitHub Actions Keep-Alive**: The scheduled workflow `.github/workflows/supabase-keepalive.yml` runs every 3 days. To enable it, add `SUPABASE_URL` and `SUPABASE_ANON_KEY` to your GitHub repo secrets (**Settings -> Secrets and variables -> Actions**).
-3. **Health & Uptime Monitoring**: The Worker exposes `/health?check=db`, which can be monitored with free services like UptimeRobot or Cron-job.org to keep edge isolates and database connections active.
+1. **Cloudflare Worker Cron (primary)**: Once deployed, the Worker queries the database every six hours (`17 */6 * * *`, UTC). It requires valid Worker secrets.
+2. **GitHub Actions (backup)**: `.github/workflows/supabase-keepalive.yml` queries the database twice daily. Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` in repository Actions secrets. Missing secrets fail the job. Keep this workflow on the default branch and enable Actions.
+3. **Verification**: Run the workflow manually and confirm a successful database query. Check Cloudflare scheduled-event logs, not just the presence of a cron in this file. `/health?check=db` performs a database check; plain `/health` does not.
+
+GitHub may delay scheduled jobs and disables schedules in public repositories after 60 days without repository activity. Cloudflare is therefore the primary schedule. If Supabase is already paused, resume it in the dashboard first. See [deployment instructions](docs/deployment.md).
 
 ## Development
 

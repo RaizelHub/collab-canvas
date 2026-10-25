@@ -4,7 +4,7 @@ import { getRouteTitle } from "./route-title";
 
 describe("getRouteTitle", () => {
   it.each([
-    ["/", "Boards — CollabCanvas"],
+    ["/", "CollabCanvas — Think it. Sketch it. Build it together."],
     ["/login", "Sign in — CollabCanvas"],
     ["/dashboard", "Boards — CollabCanvas"],
     ["/profile", "Profile — CollabCanvas"],

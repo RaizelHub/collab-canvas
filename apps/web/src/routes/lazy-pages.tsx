@@ -1,5 +1,12 @@
 import { lazy } from "react";
 
+export const PagesLibraryPage = lazy(async () => ({
+  default: (await import("../pages/pages-library-page")).PagesLibraryPage,
+}));
+export const ManuscriptPage = lazy(async () => ({
+  default: (await import("../pages/manuscript-page")).ManuscriptPage,
+}));
+
 export const LandingPage = lazy(async () => ({
   default: (await import("../pages/landing-page")).LandingPage,
 }));

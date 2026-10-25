@@ -38,20 +38,18 @@ Verify `/health`, `/health?check=db` (database connectivity and latency),
 an unauthorized ticket rejection, ticket replay rejection, an invalid origin rejection,
 and an authenticated owner/editor/viewer connection.
 
-## 3. Zero-Downtime Database Maintenance (Preventing Auto-Pause)
+## 3. Free-plan database activity checks
 
-Supabase Free Plan projects automatically pause after 7 days of inactivity. To ensure 0 downtime and avoid having to manually reactivate the database:
+This reduces inactivity-pause risk; it does not guarantee uptime or automatically restore paused projects. Resume an already paused project in the Supabase dashboard first.
 
-1. **Cloudflare Cron Trigger (Automatic)**:
-   `wrangler.jsonc` includes `"triggers": { "crons": ["0 4 */2 * *"] }`. When deployed, the Worker runs a scheduled event every 2 days to query Supabase and reset the inactivity counter.
-2. **GitHub Actions Workflow (Automated Backup Keep-Alive)**:
-   In your GitHub repository settings under **Settings -> Secrets and variables -> Actions**, add:
-   - `SUPABASE_URL` (your project URL, e.g. `https://xyz.supabase.co`)
-   - `SUPABASE_ANON_KEY` (your Supabase anon key)
-   - `SYNC_WORKER_URL` (optional, e.g. `https://sync.yourdomain.com`)
-     The `.github/workflows/supabase-keepalive.yml` workflow runs automatically every 3 days (and can be dispatched manually).
-3. **External Uptime Monitor (Optional)**:
-   Point any free uptime monitor (UptimeRobot, Better Stack, Cron-job.org) to ping `https://<your-worker-url>/health?check=db` every 10–30 minutes to maintain active edge and database queries.
+1. Deploy the Worker with its required secrets. Its Cloudflare cron runs every six hours (`17 */6 * * *`, UTC). Verify successful database queries in Cloudflare scheduled-event logs.
+2. Enable the backup workflow on the GitHub default branch. Under **Settings -> Secrets and variables -> Actions**, set `SUPABASE_URL` and `SUPABASE_ANON_KEY`. Optionally set `SYNC_WORKER_URL` to also log the Worker's database health. Do not put the service-role key in the frontend or repository.
+3. Run **Supabase Keep-Alive -> Run workflow** and confirm success. The backup runs at 03:43 and 15:43 UTC daily, retries transient request failures, and fails when required secrets are absent or the database request fails.
+4. Check the deployed Worker's `/health?check=db` endpoint for database connectivity. A successful plain `/health` response is not proof that Supabase is accessible.
+
+GitHub scheduled jobs may be delayed, run only from the default branch, and are disabled in public repositories after 60 days without repository activity. Keep the Cloudflare schedule as the primary mechanism; a local dev server does not provide an always-running hosted schedule.
+
+Sources: [Supabase pausing](https://supabase.com/docs/guides/platform/free-project-pausing), [GitHub scheduled workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
 
 ## 4. Frontend
 

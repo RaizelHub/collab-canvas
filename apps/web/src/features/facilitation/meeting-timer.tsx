@@ -1,12 +1,6 @@
+import { SolidIcon } from "../../components/solid-icon";
 import { useEffect, useRef, useState } from "react";
-import {
-  ChevronDown,
-  ChevronUp,
-  Pause,
-  Play,
-  RotateCcw,
-  Timer,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, Pause, Play, RotateCcw } from "lucide-react";
 
 interface MeetingTimerProps {
   onTimeUp?: () => void;
@@ -108,7 +102,7 @@ export function MeetingTimer({ onTimeUp }: MeetingTimerProps) {
         onClick={() => setIsOpen(true)}
         type="button"
       >
-        <Timer className="size-3.5 text-accent" />
+        <SolidIcon name="timer" className="size-3.5 text-accent" />
         <span>Timer</span>
       </button>
     );
@@ -123,7 +117,7 @@ export function MeetingTimer({ onTimeUp }: MeetingTimerProps) {
       {/* Timer Header */}
       <div className="flex items-center justify-between border-b border-line px-3 py-1.5">
         <div className="flex items-center gap-1.5 text-xs font-medium text-ink">
-          <Timer className="size-3.5 text-accent" />
+          <SolidIcon name="timer" className="size-3.5 text-accent" />
           <span>Room Timer</span>
         </div>
         <div className="flex items-center gap-1">

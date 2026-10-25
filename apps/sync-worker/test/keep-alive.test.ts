@@ -67,6 +67,21 @@ describe("database keep-alive ping", () => {
 });
 
 describe("scheduled keep-alive execution", () => {
+  it("reports failed database checks to the scheduler and caller", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response("Unavailable", { status: 503 })),
+    );
+    let completion: Promise<unknown> | undefined;
+    const result = await executeScheduledKeepAlive(validEnv, (promise) => {
+      completion = promise.catch((error: unknown) => error);
+    });
+    expect(result.ok).toBe(false);
+    expect(await completion).toEqual(
+      new Error("Scheduled database check failed (HTTP 503)."),
+    );
+  });
+
   it("executes database ping via waitUntil callback", async () => {
     const fetchMock = vi
       .fn()

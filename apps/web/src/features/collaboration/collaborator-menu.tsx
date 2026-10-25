@@ -1,4 +1,5 @@
-import { Eye, EyeOff, Users } from "lucide-react";
+import { SolidIcon } from "../../components/solid-icon";
+import { Eye, EyeOff } from "lucide-react";
 
 import { getInitials, type PresenceParticipant } from "./presence";
 
@@ -29,7 +30,7 @@ export function CollaboratorMenu({
             </span>
           ))}
         </span>
-        <Users className="size-3.5" />
+        <SolidIcon name="people" className="size-3.5" />
         {participants.length} online
       </summary>
       <div className="absolute right-0 top-10 z-30 w-72 border border-line bg-panel p-3 text-xs shadow-lg">

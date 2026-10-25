@@ -75,7 +75,26 @@ export function BoardCard<Board extends LocalBoard>({
   };
 
   return (
-    <article className="group flex min-h-36 flex-col border border-line bg-panel p-4 transition hover:border-line-strong hover:shadow-sm">
+    <article className="board-card group">
+      <button
+        className="board-card-preview"
+        aria-label={`Open ${board.title}`}
+        onClick={() => onOpen(board)}
+        type="button"
+      >
+        <span className="preview-board" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => (
+            <span
+              key={index}
+              className={`preview-note preview-note-${index % 5}`}
+            >
+              <i />
+              <i />
+              <i />
+            </span>
+          ))}
+        </span>
+      </button>
       <div className="flex items-start justify-between gap-2">
         {isRenaming ? (
           <form className="flex-1" onSubmit={handleSubmit}>

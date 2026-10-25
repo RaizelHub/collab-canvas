@@ -1,22 +1,17 @@
+import { SolidIcon } from "../components/solid-icon";
 import {
   ArrowLeft,
   Check,
   Columns,
   Copy,
-  Cpu,
-  Ellipsis,
   EyeOff,
   FileDown,
-  HelpCircle,
   LayoutGrid,
   LoaderCircle,
   Moon,
   RotateCcw,
   Save,
-  Share2,
-  Sparkles,
   Sun,
-  Vote,
   X,
 } from "lucide-react";
 import {
@@ -64,7 +59,6 @@ import {
   sortSelectedNotesByColor,
 } from "../features/whiteboard/tidy-notes";
 import { WhiteboardCanvas } from "../features/whiteboard/whiteboard-canvas";
-import { getBoardPersistenceKey } from "../features/whiteboard/persistence-key";
 import { createAccessibleBoardHtml } from "../features/whiteboard/accessible-export";
 import { useTheme } from "../hooks/use-theme";
 import { supabase } from "../lib/supabase";
@@ -456,14 +450,14 @@ export function CloudWhiteboardPage() {
         : "Connecting";
 
   return (
-    <main className="relative flex h-dvh min-h-0 flex-col bg-canvas text-ink">
+    <main className="board-workspace relative flex h-dvh min-h-0 flex-col bg-canvas text-ink">
       <a
         className="fixed left-3 top-3 z-[100] -translate-y-20 bg-accent px-3 py-2 text-sm font-semibold text-white transition focus:translate-y-0"
         href="#main-content"
       >
         Skip to canvas
       </a>
-      <header className="z-50 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-panel px-3 sm:gap-3 sm:px-4">
+      <header className="board-floating-header">
         <Link
           aria-label="Back to dashboard"
           className="grid size-8 place-items-center text-muted hover:bg-hover"
@@ -515,7 +509,7 @@ export function CloudWhiteboardPage() {
             title="System Architecture Inspector"
             type="button"
           >
-            <Cpu className="size-3.5 text-accent" />
+            <SolidIcon name="briefcase" className="size-3.5 text-accent" />
             <span className="hidden md:inline">Architecture</span>
           </button>
 
@@ -527,7 +521,7 @@ export function CloudWhiteboardPage() {
             title="Dot Voting"
             type="button"
           >
-            <Vote className="size-3.5 text-amber-500" />
+            <SolidIcon name="checklist" className="size-3.5 text-amber-500" />
             <span className="hidden md:inline">Voting</span>
           </button>
 
@@ -543,7 +537,7 @@ export function CloudWhiteboardPage() {
             onClick={() => setIsTemplatePickerOpen(true)}
             type="button"
           >
-            <Sparkles className="size-3.5 text-accent" />
+            <SolidIcon name="sparkles" className="size-3.5 text-accent" />
             <span className="hidden sm:inline">Templates</span>
           </button>
 
@@ -568,10 +562,11 @@ export function CloudWhiteboardPage() {
           {board.canManage && (
             <button
               className="flex h-8 items-center gap-2 border border-line bg-panel px-3 text-xs font-medium"
+              aria-label="Share board"
               onClick={() => setShareOpen(true)}
               type="button"
             >
-              <Share2 className="size-3.5" />
+              <SolidIcon name="share" className="size-3.5" />
               Share
             </button>
           )}
@@ -618,7 +613,7 @@ export function CloudWhiteboardPage() {
             title="Keyboard Shortcuts (?)"
             type="button"
           >
-            <HelpCircle className="size-4" />
+            <SolidIcon name="help" className="size-4" />
           </button>
 
           <details className="relative">
@@ -626,7 +621,7 @@ export function CloudWhiteboardPage() {
               aria-label="Board menu"
               className="grid size-8 cursor-pointer list-none place-items-center rounded-xl text-muted hover:bg-hover transition"
             >
-              <Ellipsis className="size-4" />
+              <SolidIcon name="more" className="size-4" />
             </summary>
             <div className="absolute right-0 top-12 z-[100] w-72 rounded-2xl border-2 border-line bg-panel p-4 text-xs shadow-2xl neo-box-shadow animate-in fade-in duration-150">
               <p className="font-bold text-ink">Board ID</p>
@@ -841,10 +836,10 @@ export function CloudWhiteboardPage() {
               { scope: "all" },
             );
           }}
-          persistenceKey={getBoardPersistenceKey(board.id)}
+          mode="cloud"
         />
         {/* Live Cursor Reactions & Laser Pointer */}
-        <CursorReactions editor={editor} />
+        <CursorReactions editor={editor} participants={participants} />
 
         {/* Canvas Mini-Map Navigator */}
         <MiniMap editor={editor} />

@@ -1,3 +1,4 @@
+import { DashboardSections } from "../features/boards/dashboard-sections";
 import { LayoutGrid, Search, Sparkles, Star } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
@@ -51,6 +52,7 @@ function LocalDashboardPage({
     );
   const [searchQuery, setSearchQuery] = useState("");
   const [starredOnly, setStarredOnly] = useState(false);
+  const [showAllRecent, setShowAllRecent] = useState(false);
   const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
   const [boardToDelete, setBoardToDelete] = useState<LocalBoard | null>(null);
   const [starredIds, setStarredIds] = useState<Set<string>>(
@@ -141,17 +143,14 @@ function LocalDashboardPage({
   );
 
   return (
-    <main className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:py-10">
-      <div className="flex flex-col gap-5 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
+    <main className="boards-dashboard">
+      <div className="dashboard-heading">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted">
-            Workspace
-          </p>
           <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em]">
-            Boards
+            My Whiteboards
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Your boards, templates, and whiteboard canvases.
+            Manage your collaborative boards and templates
           </p>
         </div>
 
@@ -187,15 +186,14 @@ function LocalDashboardPage({
           className="mt-5 border-l-2 border-accent bg-panel px-4 py-3 text-sm"
           role="status"
         >
-          <span className="font-medium">Local foundation mode.</span>{" "}
+          <span className="font-medium">Saved on this device.</span>{" "}
           <span className="text-muted">
-            Add the two Supabase values in <code>apps/web/.env.local</code> when
-            cloud sync begins. Local boards remain available now.
+            Your local boards are available in this browser.
           </span>
         </div>
       )}
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+      <div className="dashboard-filters">
         <div className="flex items-center gap-1">
           <button
             className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
@@ -238,6 +236,13 @@ function LocalDashboardPage({
         </label>
       </div>
 
+      <div className="dashboard-section-heading dashboard-recent-heading">
+        <h2>Recent Boards</h2>
+        <button type="button" onClick={() => setShowAllRecent(!showAllRecent)}>
+          {showAllRecent ? "Show recent" : "View all"}
+        </button>
+      </div>
+
       {storageError ? (
         <section className="grid min-h-[320px] place-items-center py-12 text-center">
           <div className="max-w-md">
@@ -259,21 +264,20 @@ function LocalDashboardPage({
           </div>
         </section>
       ) : filteredBoards.length > 0 ? (
-        <section
-          aria-label="Local boards"
-          className="grid grid-cols-1 gap-3 py-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        >
-          {filteredBoards.map((board) => (
-            <BoardCard
-              board={board}
-              isStarred={isBoardStarred(board.id)}
-              key={board.id}
-              onDelete={setBoardToDelete}
-              onOpen={openBoard}
-              onRename={renameBoard}
-              onToggleStar={toggleStar}
-            />
-          ))}
+        <section aria-label="Local boards" className="dashboard-recent-grid">
+          {filteredBoards
+            .slice(0, showAllRecent ? undefined : 3)
+            .map((board) => (
+              <BoardCard
+                board={board}
+                isStarred={isBoardStarred(board.id)}
+                key={board.id}
+                onDelete={setBoardToDelete}
+                onOpen={openBoard}
+                onRename={renameBoard}
+                onToggleStar={toggleStar}
+              />
+            ))}
         </section>
       ) : (
         <section className="grid min-h-[320px] place-items-center py-12 text-center">
@@ -297,6 +301,13 @@ function LocalDashboardPage({
           </div>
         </section>
       )}
+
+      <DashboardSections
+        boards={filteredBoards}
+        onOpen={openBoard}
+        onTemplate={handleCreateFromTemplate}
+        onBrowse={() => setIsTemplatePickerOpen(true)}
+      />
 
       <TemplatePickerDialog
         isOpen={isTemplatePickerOpen}

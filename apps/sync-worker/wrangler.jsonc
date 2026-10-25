@@ -62,7 +62,7 @@
     },
   ],
   "triggers": {
-    "crons": ["0 4 */2 * *"],
+    "crons": ["17 */6 * * *"],
   },
   "observability": {
     "enabled": true,

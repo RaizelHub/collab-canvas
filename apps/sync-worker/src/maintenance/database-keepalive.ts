@@ -84,8 +84,17 @@ export async function executeScheduledKeepAlive(
   };
 
   if (waitUntil) {
-    waitUntil(runPing());
-    return { ok: true, status: 200, latencyMs: 0 };
+    const pending = runPing();
+    waitUntil(
+      pending.then((result) => {
+        if (!result.ok) {
+          throw new Error(
+            `Scheduled database check failed (HTTP ${result.status}).`,
+          );
+        }
+      }),
+    );
+    return pending;
   }
 
   return runPing();

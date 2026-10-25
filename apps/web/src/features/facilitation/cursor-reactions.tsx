@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Editor } from "tldraw";
+import type { PresenceParticipant } from "../collaboration/presence";
 
 import { REACTION_CONFIG, type ReactionKind } from "./reaction-constants";
 
@@ -13,11 +14,13 @@ interface Reaction {
 interface CursorReactionsProps {
   editor?: Editor | null;
   hideToolbar?: boolean;
+  participants?: PresenceParticipant[];
 }
 
 export function CursorReactions({
   editor,
   hideToolbar = false,
+  participants = [],
 }: CursorReactionsProps) {
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [isLaserActive, setIsLaserActive] = useState(false);
@@ -128,7 +131,7 @@ export function CursorReactions({
 
       {/* Facilitator Quick Reaction Bar */}
       {!hideToolbar && (
-        <div className="fixed bottom-14 left-1/2 z-30 -translate-x-1/2 rounded-full border border-line bg-panel/95 px-2 py-1 shadow-xl backdrop-blur-md transition-all sm:bottom-6">
+        <div className="workspace-reactions fixed bottom-14 left-1/2 z-30 -translate-x-1/2 rounded-full border border-line bg-panel/95 px-2 py-1 shadow-xl backdrop-blur-md transition-all sm:bottom-6">
           <div className="flex items-center gap-1">
             {(Object.keys(REACTION_CONFIG) as ReactionKind[]).map((kind) => {
               const { icon: Icon, label, color } = REACTION_CONFIG[kind];
@@ -147,6 +150,27 @@ export function CursorReactions({
 
             <div className="mx-1 h-4 w-px bg-line" />
 
+            {participants.length > 0 && (
+              <div
+                className="workspace-presence"
+                aria-label={`${participants.length} people on this board`}
+              >
+                {participants.slice(0, 3).map((person) => (
+                  <span
+                    key={person.id}
+                    title={`${person.name}${person.isCurrentUser ? " (you)" : ""}`}
+                    style={{ backgroundColor: person.color }}
+                  >
+                    {person.name.slice(0, 2).toUpperCase()}
+                  </span>
+                ))}
+                {participants.length > 3 && (
+                  <span title="More collaborators">
+                    +{participants.length - 3}
+                  </span>
+                )}
+              </div>
+            )}
             {/* Laser pointer button */}
             <button
               aria-label={

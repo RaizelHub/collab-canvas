@@ -157,7 +157,7 @@ export function MiniMap({ editor }: MiniMapProps) {
     return (
       <button
         aria-label="Open Canvas Mini-Map Radar"
-        className="fixed bottom-14 right-4 z-30 hidden size-9 place-items-center rounded-lg border border-line bg-panel shadow-md transition-colors hover:bg-hover hover:text-ink sm:grid"
+        className="fixed bottom-32 right-4 z-30 hidden size-9 place-items-center rounded-lg border border-line bg-panel shadow-md transition-colors hover:bg-hover hover:text-ink sm:grid"
         onClick={() => setIsOpen(true)}
         title="Canvas Mini-Map"
         type="button"
@@ -168,7 +168,7 @@ export function MiniMap({ editor }: MiniMapProps) {
   }
 
   return (
-    <div className="fixed bottom-14 right-4 z-30 hidden overflow-hidden rounded-xl border border-line bg-panel p-2 shadow-xl backdrop-blur-md sm:block">
+    <div className="fixed bottom-32 right-4 z-30 hidden overflow-hidden rounded-xl border border-line bg-panel p-2 shadow-xl backdrop-blur-md sm:block">
       <div className="mb-1.5 flex items-center justify-between px-1">
         <span className="flex items-center gap-1 text-[11px] font-medium text-muted">
           <MapPin className="size-3 text-accent" /> Mini-Map

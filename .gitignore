@@ -31,7 +31,7 @@ supabase/.temp/
 playwright-report/
 test-results/
 blob-report/
-
+portfolio-screenshots/
 # Logs and process files
 logs/
 *.log

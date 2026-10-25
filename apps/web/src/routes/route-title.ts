@@ -1,13 +1,13 @@
 export function getRouteTitle(pathname: string): string {
+  if (pathname === "/pages" || pathname.startsWith("/pages/"))
+    return "Pages — CollabCanvas";
+  if (pathname === "/")
+    return "CollabCanvas — Think it. Sketch it. Build it together.";
   if (pathname === "/login") return "Sign in — CollabCanvas";
   if (pathname === "/register") return "Create account — CollabCanvas";
   if (pathname === "/forgot-password") return "Reset password — CollabCanvas";
   if (pathname === "/reset-password") return "Choose password — CollabCanvas";
-  if (
-    pathname === "/" ||
-    pathname === "/dashboard" ||
-    pathname.startsWith("/boards/")
-  ) {
+  if (pathname === "/dashboard" || pathname.startsWith("/boards/")) {
     return "Boards — CollabCanvas";
   }
   if (pathname === "/profile") return "Profile — CollabCanvas";

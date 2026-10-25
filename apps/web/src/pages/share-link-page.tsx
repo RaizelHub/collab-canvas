@@ -5,7 +5,6 @@ import { z } from "zod";
 
 import { BrandMark } from "../components/brand-mark";
 import { WhiteboardCanvas } from "../features/whiteboard/whiteboard-canvas";
-import { getBoardPersistenceKey } from "../features/whiteboard/persistence-key";
 import { syncServerUrl } from "../lib/env";
 import { supabase } from "../lib/supabase";
 
@@ -98,11 +97,7 @@ export function ShareLinkPage() {
         </span>
       </header>
       <div className="relative min-h-0 flex-1">
-        <WhiteboardCanvas
-          boardId={board.id}
-          persistenceKey={getBoardPersistenceKey(board.id)}
-          shareToken={token}
-        />
+        <WhiteboardCanvas boardId={board.id} mode="cloud" shareToken={token} />
       </div>
     </main>
   );

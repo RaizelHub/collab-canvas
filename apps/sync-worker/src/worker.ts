@@ -770,6 +770,6 @@ export default {
       return;
     }
 
-    executeScheduledKeepAlive(env, (promise) => ctx.waitUntil(promise));
+    await executeScheduledKeepAlive(env, (promise) => ctx.waitUntil(promise));
   },
 } satisfies ExportedHandler<Env>;

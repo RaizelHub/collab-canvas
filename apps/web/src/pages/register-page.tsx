@@ -1,10 +1,13 @@
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
+import { getSafeRedirect } from "../features/auth/safe-redirect";
 
 import { useAuth } from "../features/auth/auth-context";
 
 export function RegisterPage() {
+  const [searchParams] = useSearchParams();
+  const loginUrl = `/login?redirect=${encodeURIComponent(getSafeRedirect(searchParams.get("redirect")))}`;
   const { configured, error, signUp } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -29,7 +32,7 @@ export function RegisterPage() {
         </p>
         <Link
           className="mt-5 inline-flex h-9 items-center bg-accent px-3 text-sm font-medium text-white"
-          to="/login"
+          to={loginUrl}
         >
           Back to sign in
         </Link>
@@ -111,7 +114,7 @@ export function RegisterPage() {
       </form>
       <p className="mt-5 text-sm text-muted">
         Already registered?{" "}
-        <Link className="text-accent hover:underline font-medium" to="/login">
+        <Link className="text-accent hover:underline font-medium" to={loginUrl}>
           Sign in
         </Link>
       </p>

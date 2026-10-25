@@ -1,16 +1,12 @@
+import { SolidIcon } from "../components/solid-icon";
 import {
   ArrowLeft,
   Check,
   Columns,
-  Cpu,
-  Ellipsis,
   HardDrive,
-  HelpCircle,
   LayoutGrid,
   Moon,
-  Sparkles,
   Sun,
-  Vote,
 } from "lucide-react";
 import {
   useEffect,
@@ -216,14 +212,14 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
   const persistenceKey = getBoardPersistenceKey(board.id);
 
   return (
-    <main className="relative flex h-dvh min-h-0 flex-col bg-canvas text-ink">
+    <main className="board-workspace relative flex h-dvh min-h-0 flex-col bg-canvas text-ink">
       <a
         className="fixed left-3 top-3 z-[100] -translate-y-20 bg-accent px-3 py-2 text-sm font-semibold text-white transition focus:translate-y-0"
         href="#main-content"
       >
         Skip to canvas
       </a>
-      <header className="z-50 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-panel px-3 sm:gap-3 sm:px-4">
+      <header className="board-floating-header">
         <Link
           aria-label={isDemoMode ? "Back to home" : "Back to dashboard"}
           className="grid size-8 place-items-center text-muted transition hover:bg-hover hover:text-ink"
@@ -284,7 +280,7 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
             title="System Architecture Inspector"
             type="button"
           >
-            <Cpu className="size-3.5 text-accent" />
+            <SolidIcon name="briefcase" className="size-3.5 text-accent" />
             <span className="hidden md:inline">Architecture</span>
           </button>
 
@@ -296,7 +292,7 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
             title="Dot Voting"
             type="button"
           >
-            <Vote className="size-3.5 text-amber-500" />
+            <SolidIcon name="checklist" className="size-3.5 text-amber-500" />
             <span className="hidden md:inline">Voting</span>
           </button>
 
@@ -312,7 +308,7 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
             onClick={() => setIsTemplatePickerOpen(true)}
             type="button"
           >
-            <Sparkles className="size-3.5 text-accent" />
+            <SolidIcon name="sparkles" className="size-3.5 text-accent" />
             <span className="hidden sm:inline">Templates</span>
           </button>
 
@@ -340,7 +336,7 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
             title="Keyboard Shortcuts (?)"
             type="button"
           >
-            <HelpCircle className="size-4" />
+            <SolidIcon name="help" className="size-4" />
           </button>
 
           <details className="relative">
@@ -348,7 +344,7 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
               aria-label="Board menu"
               className="grid size-8 cursor-pointer list-none place-items-center text-muted hover:bg-hover hover:text-ink"
             >
-              <Ellipsis aria-hidden="true" className="size-4" />
+              <SolidIcon name="more" aria-hidden="true" className="size-4" />
             </summary>
             <div className="absolute right-0 top-12 z-[100] w-72 rounded-2xl border-2 border-line bg-panel p-4 text-xs shadow-2xl neo-box-shadow animate-in fade-in duration-150">
               <p className="font-bold text-ink">Local board ID</p>
@@ -397,6 +393,7 @@ function LocalWhiteboardPage({ isDemo = false }: { isDemo?: boolean }) {
 
       <div className="relative min-h-0 flex-1" id="main-content" tabIndex={-1}>
         <WhiteboardCanvas
+          mode="local"
           boardId={board.id}
           onMount={(mountedEditor) => {
             editorRef.current = mountedEditor;

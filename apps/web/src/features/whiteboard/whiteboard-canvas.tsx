@@ -1,3 +1,5 @@
+import { workspaceShapeUtils } from "./shape-styles";
+import { phosphorOverrides } from "./phosphor-overrides";
 import {
   Component,
   useCallback,
@@ -15,20 +17,35 @@ import {
   type TLUserStore,
   UserRecordType,
 } from "@tldraw/tlschema";
-import { Tldraw, type Editor } from "tldraw";
+import { Tldraw, DefaultFontStyle, type Editor } from "tldraw";
+import {
+  WorkspaceToolbar,
+  WorkspaceNavigation,
+  WorkspaceGrid,
+} from "./workspace-controls";
+const workspaceComponents = {
+  Grid: WorkspaceGrid,
+  Toolbar: WorkspaceToolbar,
+  NavigationPanel: WorkspaceNavigation,
+};
 import "tldraw/tldraw.css";
+import "./workspace.css";
 
 import { useAuth } from "../auth/auth-context";
 import { syncServerUrl } from "../../lib/env";
 import { supabase } from "../../lib/supabase";
 
-interface WhiteboardCanvasProps {
+interface WhiteboardCanvasBaseProps {
   boardId: string;
   onConnectionStatus?: (status: "connecting" | "connected" | "offline") => void;
   onMount?: (editor: Editor) => void;
-  persistenceKey: string;
-  shareToken?: string;
 }
+
+type WhiteboardCanvasProps = WhiteboardCanvasBaseProps &
+  (
+    | { mode: "local"; persistenceKey: string; shareToken?: never }
+    | { mode: "cloud"; persistenceKey?: never; shareToken?: string }
+  );
 
 interface CanvasErrorBoundaryProps {
   children: ReactNode;
@@ -80,21 +97,23 @@ class CanvasErrorBoundary extends Component<
 
 export function WhiteboardCanvas({
   boardId,
+  mode,
   onConnectionStatus,
   onMount,
   persistenceKey,
   shareToken,
 }: WhiteboardCanvasProps) {
-  const isLocalOrDemo =
-    Boolean(persistenceKey) || boardId === "demo-sandbox-showcase";
-
-  if (isLocalOrDemo || !syncServerUrl || !supabase) {
+  if (mode === "local") {
     return (
       <LocalWhiteboardCanvas
         onMount={onMount}
-        persistenceKey={persistenceKey ?? `collab-canvas-board-${boardId}`}
+        persistenceKey={persistenceKey}
       />
     );
+  }
+
+  if (!syncServerUrl || !supabase) {
+    return <UnavailableCloudCanvas onConnectionStatus={onConnectionStatus} />;
   }
 
   return (
@@ -107,6 +126,28 @@ export function WhiteboardCanvas({
   );
 }
 
+function UnavailableCloudCanvas({
+  onConnectionStatus,
+}: Pick<WhiteboardCanvasBaseProps, "onConnectionStatus">) {
+  useEffect(() => {
+    onConnectionStatus?.("offline");
+  }, [onConnectionStatus]);
+  return (
+    <div
+      className="grid h-full place-items-center bg-panel p-6 text-center"
+      role="alert"
+    >
+      <div className="max-w-md">
+        <h2 className="font-semibold">Live collaboration is unavailable</h2>
+        <p className="mt-2 text-sm text-muted">
+          The collaboration service is not configured. This shared board cannot
+          connect. Your existing browser-local drawings have not been deleted.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function LocalWhiteboardCanvas({
   persistenceKey,
   onMount,
@@ -116,7 +157,17 @@ function LocalWhiteboardCanvas({
 }) {
   return (
     <CanvasErrorBoundary>
-      <Tldraw onMount={onMount} persistenceKey={persistenceKey} />
+      <Tldraw
+        overrides={phosphorOverrides}
+        components={workspaceComponents}
+        shapeUtils={workspaceShapeUtils}
+        onMount={(editor) => {
+          editor.updateInstanceState({ isGridMode: true });
+          editor.setStyleForNextShapes(DefaultFontStyle, "sans");
+          onMount?.(editor);
+        }}
+        persistenceKey={persistenceKey}
+      />
     </CanvasErrorBoundary>
   );
 }
@@ -280,19 +331,31 @@ function CollaborativeWhiteboardCanvas({
     uri: getSyncUri,
   });
 
-  useEffect(() => {
-    onConnectionStatus?.(
-      store.status === "synced-remote"
+  const connectionStatus =
+    store.status === "synced-remote"
+      ? store.connectionStatus === "online"
         ? "connected"
-        : store.status === "error"
-          ? "offline"
-          : "connecting",
-    );
-  }, [onConnectionStatus, store.status]);
+        : "offline"
+      : store.status === "error"
+        ? "offline"
+        : "connecting";
+  useEffect(() => {
+    onConnectionStatus?.(connectionStatus);
+  }, [onConnectionStatus, connectionStatus]);
 
   return (
     <CanvasErrorBoundary>
-      <Tldraw onMount={onMount} store={store} />
+      <Tldraw
+        overrides={phosphorOverrides}
+        components={workspaceComponents}
+        shapeUtils={workspaceShapeUtils}
+        onMount={(editor) => {
+          editor.updateInstanceState({ isGridMode: true });
+          editor.setStyleForNextShapes(DefaultFontStyle, "sans");
+          onMount?.(editor);
+        }}
+        store={store}
+      />
     </CanvasErrorBoundary>
   );
 }

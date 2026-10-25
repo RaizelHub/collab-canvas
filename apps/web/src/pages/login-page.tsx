@@ -94,7 +94,7 @@ export function LoginPage() {
       <div className="mt-5 flex justify-between text-sm">
         <Link
           className="text-accent hover:underline font-medium"
-          to="/register"
+          to={`/register?redirect=${encodeURIComponent(getSafeRedirect(searchParams.get("redirect")))}`}
         >
           Create account
         </Link>

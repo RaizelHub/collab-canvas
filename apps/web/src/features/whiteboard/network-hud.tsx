@@ -63,8 +63,8 @@ export function NetworkHud({
       );
       setOpsPerSec(Math.round((opsHistoryRef.current.length / 2) * 10) / 10);
 
-      // Measure real ping latency to sync server if configured, else synthetic fast local loop
-      if (syncServerUrl) {
+      // Health latency is separate from the actual board WebSocket status.
+      if (isCloud && syncServerUrl) {
         const start = performance.now();
         try {
           const res = await fetch(`${syncServerUrl}/health`, {
@@ -88,14 +88,13 @@ export function NetworkHud({
           setLatencyMs(null);
         }
       } else {
-        // Fast local memory / SQLite loopback simulation
-        setLatencyMs(Math.floor(Math.random() * 4) + 2); // 2-6ms local
+        setLatencyMs(null);
         setActiveRegion("Device Localhost");
       }
     }, 2500);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [isCloud]);
 
   const getLatencyColor = () => {
     if (latencyMs === null) return "text-muted";
@@ -105,7 +104,7 @@ export function NetworkHud({
   };
 
   return (
-    <div className="fixed bottom-3 right-3 z-30 font-sans text-xs">
+    <div className="workspace-diagnostics fixed bottom-20 right-4 z-30 font-sans text-xs">
       {/* HUD Trigger Pill */}
       <button
         aria-label="Toggle Network & Distributed Systems Diagnostics"
@@ -123,7 +122,15 @@ export function NetworkHud({
           }`}
         />
         <span className="font-mono font-medium">
-          {latencyMs !== null ? `${latencyMs}ms` : "Syncing"}
+          {!isCloud
+            ? "Local only"
+            : connectionStatus === "connected"
+              ? latencyMs !== null
+                ? `Connected � ${latencyMs}ms`
+                : "Connected"
+              : connectionStatus === "offline"
+                ? "Offline"
+                : "Connecting"}
         </span>
         <span className="text-muted text-[10px]">|</span>
         <span className="text-muted font-mono">{opsPerSec} ops/s</span>
